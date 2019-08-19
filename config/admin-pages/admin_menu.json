@@ -1,0 +1,19 @@
+{
+  "mainMenu" : {
+    "title" : "OpenBadges Status Page",
+    "menuTitle" : "OpenBadges",
+    "menuSlug" : "obwp_status_page",
+    "capability" : "manage_options",
+    "enableJquery" : false
+  },
+  "subMenus" : {
+    "configuration" : {
+      "title" : "OpenBadges Configuration",
+      "menuTitle" : "Configuration",
+      "menuSlug" : "obwp_configuration_page",
+      "capability" : "manage_options",
+      "optionsGroup" : "obwp_configuration",
+      "enableJquery" : true
+    }
+  }
+}
