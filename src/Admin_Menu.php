@@ -1,27 +1,32 @@
 <?php
 
-namespace appsaloon\obfw\settings;
+namespace appsaloon\obwp\settings;
 
 class Admin_Menu {
 
     protected $config;
+    protected $main_menu_hook;
+    protected $submenu_hooks = array();
+    protected $plugin_url;
 
     /**
      * Settings constructor.
      */
-    public function __construct() {
-        $config_string = file_get_contents( __DIR__ . '/../config/admin-pages/Admin_Menu.json' );
+    public function __construct( $plugin_url ) {
+        $this->plugin_url = $plugin_url;
+        $config_string = file_get_contents( __DIR__ . '/../config/admin-pages/admin_menu.json' );
         $this->config = json_decode( $config_string  );
 
         add_action( 'admin_menu', array( $this, 'add_settings_interface' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts_and_styles' ) );
     }
 
     /**
-     * Adds OBF settings page to Settings menu
+     * Adds plugin pages to wp-admin menu
      */
     public function add_settings_interface() {
-        add_menu_page(
+        $this->main_menu_hook = add_menu_page(
             $this->config->mainMenu->title,
             $this->config->mainMenu->menuTitle,
             $this->config->mainMenu->capability,
@@ -30,7 +35,7 @@ class Admin_Menu {
         );
 
         foreach( $this->config->subMenus as $identifier => $submenu_config ) {
-            add_submenu_page(
+            $submenu_hook = add_submenu_page(
                 $this->config->mainMenu->menuSlug,
                 $submenu_config->title,
                 $submenu_config->menuTitle,
@@ -40,15 +45,16 @@ class Admin_Menu {
                     include_once __DIR__ . '/../config/admin-pages/templates/' . $identifier . '.php';
                 }
             );
+            $this->submenu_hooks[$submenu_hook] = $identifier;
         }
 
     }
 
     /**
-     * Renders the OBF Settings page by use of template
+     * Renders the main plugin page for wp-admin by use of template
      */
     public function display_main_admin_page() {
-        include_once __DIR__ . '/../config/admin-pages/templates/Admin_Main_Menu.php';
+        include_once __DIR__ . '/../config/admin-pages/templates/admin_main_Menu.php';
     }
 
     /**
@@ -70,5 +76,78 @@ class Admin_Menu {
                 'default' => 'on'
             )
         );*/
+    }
+
+    public function admin_enqueue_scripts_and_styles( $hook ) {
+        if( in_array( $hook, array_keys( $this->submenu_hooks ) ) ) {
+            $this->load_submenu_page_script( $hook );
+            $this->load_submenu_page_style( $hook );
+        } elseif( $hook === $this->main_menu_hook ) {
+            $this->load_main_menu_page_scripts();
+            $this->load_main_menu_page_style();
+        }
+    }
+
+    private function load_submenu_page_script( $hook ) {
+        if( file_exists( __DIR__ . '/../js/admin-pages/' . $this->submenu_hooks[$hook] . '.js') ) {
+            if( $this->config->subMenus->{$this->submenu_hooks[$hook]}->enableJquery ) {
+                wp_enqueue_script( "jquery" );
+             }
+
+            $script_handle = $hook . strtolower( static::class ) . '_js';
+
+            wp_enqueue_script(
+                $script_handle,
+                $this->plugin_url . './js/admin-pages/' . $this->submenu_hooks[$hook] . '.js'
+            );
+            $ajax_nonce = wp_create_nonce($this->submenu_hooks[$hook] );
+
+            wp_localize_script(
+                $script_handle,
+                'adminPageData',
+                array( 'ajaxNonce' => $ajax_nonce )
+            );
+        }
+    }
+
+    private function load_submenu_page_style( $hook ) {
+        if( file_exists( __DIR__ . '/../css/admin-pages/' . $this->submenu_hooks[$hook] . '.css') ) {
+            wp_enqueue_style(
+                $hook . strtolower( static::class ) . '_css',
+                $this->plugin_url . './css/admin-pages/' . $this->submenu_hooks[$hook] . '.css'
+            );
+        }
+    }
+
+    private function load_main_menu_page_scripts(  ) {
+        if( file_exists( __DIR__ . '/../js/admin-pages/admin_main_menu.js') ) {
+            if( $this->config->mainMenu->enableJquery ) {
+                wp_enqueue_script( "jquery" );
+            }
+
+            $script_handle = $this->main_menu_hook . strtolower( static::class ) . '_js';
+
+            wp_enqueue_script(
+                $script_handle,
+                $this->plugin_url . './js/admin-pages/admin_main_menu.js'
+            );
+            $ajax_nonce = wp_create_nonce( 'admin_main_menu' );
+
+            wp_localize_script(
+                $script_handle,
+                'adminPageData
+                ',
+                array( 'ajaxNonce' => $ajax_nonce )
+            );
+        }
+    }
+
+    private function load_main_menu_page_style() {
+        if( file_exists( __DIR__ . '/../css/admin-pages/admin_main_menu.css') ) {
+            wp_enqueue_style(
+                $this->main_menu_hook . strtolower( static::class ) . '_css',
+                $this->plugin_url . './css/admin-pages/admin_main_menu.css'
+            );
+        }
     }
 }
