@@ -1,17 +1,23 @@
 jQuery(document).ready(function( $ ) {
-       $("#generate-new-obf-api-credentials").click( function(){
-           console.log('button clicked');
-           console.log( adminPageData );
-
+       $("#generate_new_obf_api_credentials").click( function(){
            var data = {
                action: "refresh_obf_api_credentials",
                security: adminPageData.ajaxNonce,
-               api_token: $("#api-token").val()
+               api_token: $("#api_token").val()
            };
 
-           $.post( ajaxurl , data, function( response ) {
-               $("#refresh-request-status").text(response.data);
-           } );
+           $.post( ajaxurl, data )
+               .done(function( response ){
+                   $("#refresh_request_status").text( response.data.message );
+
+                   if( response.data.hasOwnProperty( 'date') ) {
+                       $("#last_saved_date").text(response.data.date);
+                   }
+               })
+               .fail(function(xhr, status, error) {
+                   $("#refresh_request_status").text( xhr.responseJSON.data.message );
+               })
+           ;
        });
 
 });

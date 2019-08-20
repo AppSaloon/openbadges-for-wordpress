@@ -46,10 +46,25 @@ class Open_Badge_Factory_Api {
             ) );
 
             $result = wp_remote_post( $url, array( 'body' => $json_data_for_csr_signing) );
+            $response_code = wp_remote_retrieve_response_code( $result );
+            $response_body = wp_remote_retrieve_body( $result );
+
+            if( $response_code == 200 ) {
+                $data = array(
+                    'private_key' => $new_private_key,
+                    'client_certificate' => $response_body,
+                    'client_id' => $decrypted_api_token->id
+                );
+            } else {
+                $decoded_json_response = json_decode( $response_body );
+                $data = $decoded_json_response->error;
+            }
+
             return array(
-                'private_key' => $new_private_key,
-                'client_certificate' => wp_remote_retrieve_body( $result )
+                'response_code' => $response_code,
+                'data' => $data
             );
+
         } else {
             return 'Action requires manage_options capability';
         }
