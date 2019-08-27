@@ -138,7 +138,7 @@ class Configuration_Api {
         $time = get_option( 'obwp_obf_credentials_created_at', 'not found' );
 
         if( is_numeric( $time ) ) {
-            return date_i18n( 'Y-m-d H:i:s', $time );
+            return date_i18n( 'd-m-Y', $time );
         } else {
             return 'false';
         }
