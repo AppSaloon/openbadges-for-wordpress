@@ -6,6 +6,8 @@ use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Api;
 
 class Configuration_Api {
     const REFRESH_OBF_API_CREDENTIALS_ACTION = 'refresh_obf_api_credentials';
+    const TEST_OBF_API_CONNECTION_ACTION = 'test_obf_api_connection';
+
     const OFB_CREDENTIALS_FOLDER_NAME = 'obf-credentials';
     const CREDENTIALS_FOLDER_FILE_PERMISSIONS = 0755;
     const PRIVATE_KEY_FILE_NAME = 'private.key';
@@ -21,14 +23,14 @@ class Configuration_Api {
         	'wp_ajax_' . static::REFRESH_OBF_API_CREDENTIALS_ACTION,
 			array( $this, 'refresh_obf_api_credentials' )
 		);
+        add_action(
+        	'wp_ajax_' . static::TEST_OBF_API_CONNECTION_ACTION,
+			array( $this, 'test_obf_connection' )
+		);
     }
 
     public function refresh_obf_api_credentials() {
-        $is_nonce_valid = check_ajax_referer( 'configuration', 'security', false);
-
-        if( ! $is_nonce_valid ) {
-            wp_send_json_error( 'Invalid request' );
-        }
+        $this->send_error_for_invalid_nonce();
 
         if( current_user_can( 'manage_options' ) ) {
             if( $this->is_valid_refresh_obf_api_credentials_request() ) {
@@ -77,6 +79,14 @@ class Configuration_Api {
             );
         }
     }
+
+    private function send_error_for_invalid_nonce() {
+		$is_nonce_valid = check_ajax_referer( 'configuration', 'security', false);
+
+		if( ! $is_nonce_valid ) {
+			wp_send_json_error( 'Invalid request' );
+		}
+	}
 
     private function is_valid_refresh_obf_api_credentials_request() {
         if( empty( $_POST ) ) {
@@ -133,4 +143,31 @@ class Configuration_Api {
             return 'No date found';
         }
     }
+
+    public function test_obf_connection() {
+		if( current_user_can( 'manage_options' ) ) {
+			$client_id = get_option( 'obwp_obf_client_id' );
+			$private_key_path = $this->obf_credentials_path . DIRECTORY_SEPARATOR . static::PRIVATE_KEY_FILE_NAME;
+			$certificate_path = $this->obf_credentials_path . DIRECTORY_SEPARATOR . static::CLIENT_CERTIFICATE_FILE_NAME;
+			$result = Open_Badge_Factory_Api::test_connection( $client_id, $private_key_path, $certificate_path );
+
+			if( is_array( $result ) ) {
+				if( $result['response_code'] == 200 && $result['data'] == $client_id ) {
+					wp_send_json_success( array() );
+				} else {
+					wp_send_json_error( array() );
+				}
+			} else {
+				wp_send_json_error(
+					array( 'message' => 'Action requires manage_options capability' ),
+					403
+				);
+			}
+		} else {
+			wp_send_json_error(
+				array( 'message' => 'Action requires manage_options capability' ),
+				403
+			);
+		}
+	}
 }

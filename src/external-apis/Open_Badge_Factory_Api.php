@@ -7,6 +7,8 @@ class Open_Badge_Factory_Api {
     const OBF_BASE_URL_FOR_SIGNING_CLIENT_CERTIFICATE_REQUEST = 'https://openbadgefactory.com/v1/client/';
     const OBF_ROUTE_SUFFIX_FOR_CSR_REQUEST_SIGNING = '/sign_request';
 
+    const OBF_TEST_CONNECTION_URL = 'https://openbadgefactory.com/v1/ping/';
+
     static function generate_client_certificate_private_key_pair( $api_token ) {
         if( current_user_can( 'manage_options' ) ) {
             $obf_public_certificate = wp_remote_get( static::OBF_PUBLIC_CERTIFICATE_URL );
@@ -69,4 +71,35 @@ class Open_Badge_Factory_Api {
             return 'Action requires manage_options capability';
         }
     }
+
+    static function test_connection( $client_id, $private_key_path, $certificate_path ) {
+		if( current_user_can( 'manage_options' ) ) {
+			$ch = curl_ini();
+
+			$options = array(
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYHOST => 2,
+				CURLOPT_SSL_VERIFYPEER => true,
+				CURLOPT_HEADER => false,
+
+				CURLOPT_URL => static::OBF_TEST_CONNECTION_URL . $client_id,
+				CURLOPT_SSLCERT => $certificate_path,
+				CURLOPT_SSLKEY => $private_key_path,
+			);
+
+			curl_setopt_array( $ch, $options );
+
+			$result = curl_exec( $ch );
+			$info = curl_getinfo( $ch );
+
+			curl_close( $ch );
+
+			return array(
+				'response_code' => $info['http_code'],
+				'data' => $result
+			);
+		} else {
+			return 'Action requires manage_options capability';
+		}
+	}
 }
