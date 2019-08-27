@@ -74,7 +74,7 @@ class Open_Badge_Factory_Api {
 
     static function test_connection( $client_id, $private_key_path, $certificate_path ) {
 		if( current_user_can( 'manage_options' ) ) {
-			$ch = curl_ini();
+			$ch = curl_init();
 
 			$options = array(
 				CURLOPT_RETURNTRANSFER => true,

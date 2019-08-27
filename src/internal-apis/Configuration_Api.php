@@ -140,7 +140,7 @@ class Configuration_Api {
         if( is_numeric( $time ) ) {
             return date_i18n( 'Y-m-d H:i:s', $time );
         } else {
-            return 'No date found';
+            return 'false';
         }
     }
 
