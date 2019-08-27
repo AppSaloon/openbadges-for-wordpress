@@ -15,4 +15,4 @@ use appsaloon\obwp\settings\Admin_Menu;
 use appsaloon\obwp\internal_apis\Configuration_Api;
 
 new Admin_Menu( plugin_dir_url( __FILE__) );
-new Configuration_Api();
+new Configuration_Api( __DIR__ );
