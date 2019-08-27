@@ -5,10 +5,22 @@ namespace appsaloon\obwp\internal_apis;
 use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Api;
 
 class Configuration_Api {
-    const REFRESH_OBF_API_CREDENTIALS = 'refresh_obf_api_credentials';
+    const REFRESH_OBF_API_CREDENTIALS_ACTION = 'refresh_obf_api_credentials';
+    const OFB_CREDENTIALS_FOLDER_NAME = 'obf-credentials';
+    const CREDENTIALS_FOLDER_FILE_PERMISSIONS = 0755;
+    const PRIVATE_KEY_FILE_NAME = 'private.key';
+    const CLIENT_CERTIFICATE_FILE_NAME = 'certificate.pem';
 
-    public function __construct() {
-        add_action( 'wp_ajax_' . static::REFRESH_OBF_API_CREDENTIALS, array( $this, 'refresh_obf_api_credentials' ) );
+    protected $plugin_path;
+    protected $obf_credentials_path;
+
+    public function __construct( $plugin_path ) {
+    	$this->plugin_path = $plugin_path;
+    	$this->obf_credentials_path = $plugin_path . DIRECTORY_SEPARATOR . static::OFB_CREDENTIALS_FOLDER_NAME;
+        add_action(
+        	'wp_ajax_' . static::REFRESH_OBF_API_CREDENTIALS_ACTION,
+			array( $this, 'refresh_obf_api_credentials' )
+		);
     }
 
     public function refresh_obf_api_credentials() {
@@ -32,7 +44,7 @@ class Configuration_Api {
                     if( $api_credentials_were_updated ) {
                         wp_send_json_success(
                             array(
-                                'message' => 'new OBF api credentials saved to database',
+                                'message' => 'new OBF api credentials saved',
                                 'date' =>  static::get_formatted_obf_api_credentials_date()
                             ),
                             200
@@ -79,18 +91,38 @@ class Configuration_Api {
     }
 
     private function save_obf_api_credentials( $private_key, $client_certificate, $client_id ) {
-        $private_key_was_updated = update_option( 'obwp_obf_private_key', $private_key );
-        $client_certificate_was_updated = update_option( 'obwp_obf_client_certificate', $client_certificate );
-         update_option( 'obwp_obf_client_id', $client_id );
+    	if( $this->is_credentials_directory_present() ) {
 
+			$private_key_was_updated = file_put_contents(
+				$this->obf_credentials_path  . DIRECTORY_SEPARATOR . static::PRIVATE_KEY_FILE_NAME,
+				$private_key
+			);
 
-        if( $private_key_was_updated && $client_certificate_was_updated ) {
-            update_option( 'obwp_obf_credentials_created_at', current_time( 'timestamp', 1 ) );
-            return true;
+			$client_certificate_was_updated = file_put_contents(
+				$this->obf_credentials_path  . DIRECTORY_SEPARATOR . static::CLIENT_CERTIFICATE_FILE_NAME,
+				$client_certificate
+			);
+
+			update_option( 'obwp_obf_client_id', $client_id );
+
+			if( $private_key_was_updated && $client_certificate_was_updated ) {
+				update_option( 'obwp_obf_credentials_created_at', current_time( 'timestamp', 1 ) );
+				return true;
+			} else {
+    			return false;
+			}
         } else {
             return false;
         }
     }
+
+	private function is_credentials_directory_present() {
+		if( ! file_exists( $this->obf_credentials_path ) ) {
+			return mkdir( $this->obf_credentials_path, 0755 );
+		} else {
+			return true;
+		}
+	}
 
     static function get_formatted_obf_api_credentials_date() {
         $time = get_option( 'obwp_obf_credentials_created_at', 'not found' );
