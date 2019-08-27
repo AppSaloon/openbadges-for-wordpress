@@ -79,75 +79,88 @@ class Admin_Menu {
     }
 
     public function admin_enqueue_scripts_and_styles( $hook ) {
-        if( in_array( $hook, array_keys( $this->submenu_hooks ) ) ) {
-            $this->load_submenu_page_script( $hook );
-            $this->load_submenu_page_style( $hook );
-        } elseif( $hook === $this->main_menu_hook ) {
-            $this->load_main_menu_page_scripts();
-            $this->load_main_menu_page_style();
-        }
+        $script_handle = $hook . strtolower( static::class ) . '_js';
+        $ajax_nonce = wp_create_nonce($this->submenu_hooks[$hook] );
+        
+        wp_register_style('openbadges_css', $this->plugin_url.'/dist/css/openbadges.css');
+        wp_enqueue_style('openbadges_css');
+        wp_enqueue_script('openbadges_js', $this->plugin_url.'/dist/js/openbadges.js', 'jquery' , 1 , true );
+
+        wp_localize_script(
+            'openbadges_js',
+            'adminPageData',
+            array( 'ajaxNonce' => $ajax_nonce )
+        );
+        // if( in_array( $hook, array_keys( $this->submenu_hooks ) ) ) {
+        //     $this->load_submenu_page_script( $hook );
+        //     $this->load_submenu_page_style( $hook );
+        // } elseif( $hook === $this->main_menu_hook ) {
+        //     $this->load_main_menu_page_scripts();
+        //     $this->load_main_menu_page_style();
+        // }
+
     }
 
-    private function load_submenu_page_script( $hook ) {
-        if( file_exists( __DIR__ . '/../js/admin-pages/' . $this->submenu_hooks[$hook] . '.js') ) {
-            if( $this->config->subMenus->{$this->submenu_hooks[$hook]}->enableJquery ) {
-                wp_enqueue_script( "jquery" );
-             }
+    // private function load_submenu_page_script( $hook ) {
+    //     if( file_exists( __DIR__ . '/../js/admin-pages/' . $this->submenu_hooks[$hook] . '.js') ) {
+    //         if( $this->config->subMenus->{$this->submenu_hooks[$hook]}->enableJquery ) {
+    //             wp_enqueue_script( "jquery" );
+    //          }
 
-            $script_handle = $hook . strtolower( static::class ) . '_js';
+    //         $script_handle = $hook . strtolower( static::class ) . '_js';
 
-            wp_enqueue_script(
-                $script_handle,
-                $this->plugin_url . './js/admin-pages/' . $this->submenu_hooks[$hook] . '.js'
-            );
-            $ajax_nonce = wp_create_nonce($this->submenu_hooks[$hook] );
+    //         wp_enqueue_script(
+    //             $script_handle,
+    //             $this->plugin_url . './js/admin-pages/' . $this->submenu_hooks[$hook] . '.js'
+    //         );
+    //         $ajax_nonce = wp_create_nonce($this->submenu_hooks[$hook] );
 
-            wp_localize_script(
-                $script_handle,
-                'adminPageData',
-                array( 'ajaxNonce' => $ajax_nonce )
-            );
-        }
-    }
+    //         wp_localize_script(
+    //             $script_handle,
+    //             'adminPageData',
+    //             array( 'ajaxNonce' => $ajax_nonce )
+    //         );
+    //     }
+    // }
 
-    private function load_submenu_page_style( $hook ) {
-        if( file_exists( __DIR__ . '/../css/admin-pages/' . $this->submenu_hooks[$hook] . '.css') ) {
-            wp_enqueue_style(
-                $hook . strtolower( static::class ) . '_css',
-                $this->plugin_url . './css/admin-pages/' . $this->submenu_hooks[$hook] . '.css'
-            );
-        }
-    }
+    // private function load_submenu_page_style( $hook ) {
+    //     if( file_exists( __DIR__ . '/../css/admin-pages/' . $this->submenu_hooks[$hook] . '.css') ) {
+    //         wp_enqueue_style(
+    //             $hook . strtolower( static::class ) . '_css',
+    //             $this->plugin_url . './css/admin-pages/' . $this->submenu_hooks[$hook] . '.css'
+    //         );
+    //     }
+    // }
 
-    private function load_main_menu_page_scripts(  ) {
-        if( file_exists( __DIR__ . '/../js/admin-pages/admin_main_menu.js') ) {
-            if( $this->config->mainMenu->enableJquery ) {
-                wp_enqueue_script( "jquery" );
-            }
+    // private function load_main_menu_page_scripts(  ) {
+    //     if( file_exists( __DIR__ . '/../js/admin-pages/admin_main_menu.js') ) {
+    //         if( $this->config->mainMenu->enableJquery ) {
+    //             wp_enqueue_script( "jquery" );
+    //         }
 
-            $script_handle = $this->main_menu_hook . strtolower( static::class ) . '_js';
+    //         $script_handle = $this->main_menu_hook . strtolower( static::class ) . '_js';
 
-            wp_enqueue_script(
-                $script_handle,
-                $this->plugin_url . './js/admin-pages/admin_main_menu.js'
-            );
-            $ajax_nonce = wp_create_nonce( 'admin_main_menu' );
+    //         wp_enqueue_script(
+    //             $script_handle,
+    //             $this->plugin_url . './js/admin-pages/admin_main_menu.js'
+    //         );
+    //         $ajax_nonce = wp_create_nonce( 'admin_main_menu' );
 
-            wp_localize_script(
-                $script_handle,
-                'adminPageData
-                ',
-                array( 'ajaxNonce' => $ajax_nonce )
-            );
-        }
-    }
+    //         wp_localize_script(
+    //             $script_handle,
+    //             'adminPageData
+    //             ',
+    //             array( 'ajaxNonce' => $ajax_nonce )
+    //         );
+    //     }
+    // }
 
-    private function load_main_menu_page_style() {
-        if( file_exists( __DIR__ . '/../css/admin-pages/admin_main_menu.css') ) {
-            wp_enqueue_style(
-                $this->main_menu_hook . strtolower( static::class ) . '_css',
-                $this->plugin_url . './css/admin-pages/admin_main_menu.css'
-            );
-        }
-    }
+    // private function load_main_menu_page_style() {
+    //     if( file_exists( __DIR__ . '/../css/admin-pages/admin_main_menu.css') ) {
+    //         wp_enqueue_style(
+    //             $this->main_menu_hook . strtolower( static::class ) . '_css',
+    //             $this->plugin_url . './css/admin-pages/admin_main_menu.css'
+    //         );
+    //     }
+    // }
 }

@@ -1,0 +1,8 @@
+{
+	"scripts" : {
+		"src" : [
+			"assets/js/tipped.js",
+			"assets/js/admin-pages/configuration.js"
+		]
+	}
+}

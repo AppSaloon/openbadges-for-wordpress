@@ -1,0 +1,33 @@
+{
+  "name": "project_name",
+  "version": "1.0.0",
+  "description": "The project description",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp": "~3.9.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-concat": "~2.6.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-filesize": "~0.0.6",
+    "gulp-rename": "~1.2.3",
+    "gulp-sass": "~4.0.1",
+    "gulp-uglify": "~3.0.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-util": "~3.0.8"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "web",
+    "site"
+  ],
+  "author": "Mark",
+  "license": "ISC"
+}
