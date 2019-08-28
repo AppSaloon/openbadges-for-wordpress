@@ -1,6 +1,6 @@
 <?php
 	global $title;
-	use appsaloon\obwp\internal_apis\Configuration_Api;
+	use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Credentials;
 ?>
 <div class="wrap">
 	<h2><?php echo $title;?></h2>
@@ -33,7 +33,7 @@
 						<th scope="row"></th>
 						<td>
 							<button id="generate_new_obf_api_credentials" class="button button-primary">
-							<?php if ( Configuration_Api::get_formatted_obf_api_credentials_date() == 'false' ) {
+							<?php if ( Open_Badge_Factory_Credentials::get_formatted_obf_api_credentials_date() == 'false' ) {
 								echo 'Get certificate';
 							} else {
 								echo 'Renew certificate';
@@ -47,10 +47,10 @@
 						<td>
 							<p id="last_saved_date">
 							<?php
-							if ( Configuration_Api::get_formatted_obf_api_credentials_date() == 'false' ) {
+							if ( Open_Badge_Factory_Credentials::get_formatted_obf_api_credentials_date() == 'false' ) {
 								echo 'No date found';
 							} else {
-								echo Configuration_Api::get_formatted_obf_api_credentials_date();
+								echo Open_Badge_Factory_Credentials::get_formatted_obf_api_credentials_date();
 							}
 							?></p>
 						</td>

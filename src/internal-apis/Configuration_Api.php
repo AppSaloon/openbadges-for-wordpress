@@ -3,6 +3,7 @@
 namespace appsaloon\obwp\internal_apis;
 
 use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Api;
+use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Credentials;
 
 class Configuration_Api {
     const REFRESH_OBF_API_CREDENTIALS_ACTION = 'refresh_obf_api_credentials';
@@ -13,18 +14,15 @@ class Configuration_Api {
     const PRIVATE_KEY_FILE_NAME = 'private.key';
     const CLIENT_CERTIFICATE_FILE_NAME = 'certificate.pem';
 
-    protected $plugin_path;
-    protected $obf_credentials_path;
+	protected $credentials;
+	protected $obf_api;
 
-    public function __construct( $plugin_path ) {
-    	$this->plugin_path = $plugin_path;
-    	$this->obf_credentials_path = $plugin_path . DIRECTORY_SEPARATOR . static::OFB_CREDENTIALS_FOLDER_NAME;
-        add_action(
-        	'wp_ajax_' . static::REFRESH_OBF_API_CREDENTIALS_ACTION,
-			array( $this, 'refresh_obf_api_credentials' )
-		);
-        add_action(
-        	'wp_ajax_' . static::TEST_OBF_API_CONNECTION_ACTION,
+    public function __construct( Open_Badge_Factory_Api $obf_api_object ) {
+    	$this->credentials = $obf_api_object->get_credentials();
+    	$this->obf_api = $obf_api_object;
+        add_action( 'wp_ajax_' . static::REFRESH_OBF_API_CREDENTIALS_ACTION,
+			array( $this, 'refresh_obf_api_credentials' ) );
+        add_action( 'wp_ajax_' . static::TEST_OBF_API_CONNECTION_ACTION,
 			array( $this, 'test_obf_connection' )
 		);
     }
@@ -37,17 +35,16 @@ class Configuration_Api {
                 $refresh_result =
                     Open_Badge_Factory_Api::generate_client_certificate_private_key_pair( $_POST['api_token'] );
                 if( $refresh_result['response_code'] == 200  ) {
-                    $api_credentials_were_updated =
-                        $this->save_obf_api_credentials(
-                            $refresh_result['data']['private_key'],
-                            $refresh_result['data']['client_certificate'],
-                            $refresh_result['data']['client_id']
-                        );
-                    if( $api_credentials_were_updated ) {
+                    if( $this->credentials->save_new_credentials(
+							$refresh_result['data']['client_id'],
+							$refresh_result['data']['private_key'],
+							$refresh_result['data']['client_certificate']
+						)
+					) {
                         wp_send_json_success(
                             array(
                                 'message' => 'new OBF api credentials saved',
-                                'date' =>  static::get_formatted_obf_api_credentials_date()
+                                'date' =>  Open_Badge_Factory_Credentials::get_formatted_credentials_saved_timestamp()
                             ),
                             200
                         );
@@ -100,56 +97,10 @@ class Configuration_Api {
         }
     }
 
-    private function save_obf_api_credentials( $private_key, $client_certificate, $client_id ) {
-    	if( $this->is_credentials_directory_present() ) {
-
-			$private_key_was_updated = file_put_contents(
-				$this->obf_credentials_path  . DIRECTORY_SEPARATOR . static::PRIVATE_KEY_FILE_NAME,
-				$private_key
-			);
-
-			$client_certificate_was_updated = file_put_contents(
-				$this->obf_credentials_path  . DIRECTORY_SEPARATOR . static::CLIENT_CERTIFICATE_FILE_NAME,
-				$client_certificate
-			);
-
-			update_option( 'obwp_obf_client_id', $client_id );
-
-			if( $private_key_was_updated && $client_certificate_was_updated ) {
-				update_option( 'obwp_obf_credentials_created_at', current_time( 'timestamp', 1 ) );
-				return true;
-			} else {
-    			return false;
-			}
-        } else {
-            return false;
-        }
-    }
-
-	private function is_credentials_directory_present() {
-		if( ! file_exists( $this->obf_credentials_path ) ) {
-			return mkdir( $this->obf_credentials_path, 0755 );
-		} else {
-			return true;
-		}
-	}
-
-    static function get_formatted_obf_api_credentials_date() {
-        $time = get_option( 'obwp_obf_credentials_created_at', 'not found' );
-
-        if( is_numeric( $time ) ) {
-            return date_i18n( 'd-m-Y', $time );
-        } else {
-            return 'false';
-        }
-    }
-
     public function test_obf_connection() {
 		if( current_user_can( 'manage_options' ) ) {
 			$client_id = get_option( 'obwp_obf_client_id' );
-			$private_key_path = $this->obf_credentials_path . DIRECTORY_SEPARATOR . static::PRIVATE_KEY_FILE_NAME;
-			$certificate_path = $this->obf_credentials_path . DIRECTORY_SEPARATOR . static::CLIENT_CERTIFICATE_FILE_NAME;
-			$result = Open_Badge_Factory_Api::test_connection( $client_id, $private_key_path, $certificate_path );
+			$result = $this->obf_api->test_connection();
 
 			if( is_array( $result ) ) {
 				if( $result['response_code'] == 200 && $result['data'] == $client_id ) {
