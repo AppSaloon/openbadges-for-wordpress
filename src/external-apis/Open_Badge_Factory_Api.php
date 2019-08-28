@@ -3,7 +3,12 @@
 namespace appsaloon\obwp\external_apis\openbadgefactory;
 
 class Open_Badge_Factory_Api {
-    const OBF_PUBLIC_CERTIFICATE_URL = 'https://openbadgefactory.com/v1/client/OBF.rsa.pub';
+	// WP AJAX actions
+	const REFRESH_OBF_API_CREDENTIALS_ACTION = 'refresh_obf_api_credentials';
+	const TEST_OBF_API_CONNECTION_ACTION = 'test_obf_api_connection';
+
+    // OpenBadgeFactory URLS
+	const OBF_PUBLIC_CERTIFICATE_URL = 'https://openbadgefactory.com/v1/client/OBF.rsa.pub';
     const OBF_BASE_URL_FOR_SIGNING_CLIENT_CERTIFICATE_REQUEST = 'https://openbadgefactory.com/v1/client/';
     const OBF_ROUTE_SUFFIX_FOR_CSR_REQUEST_SIGNING = '/sign_request';
 
@@ -13,13 +18,90 @@ class Open_Badge_Factory_Api {
 
     public function __construct( Open_Badge_Factory_Credentials $credentials_object ) {
 		$this->credentials = $credentials_object;
+
+		add_action( 'wp_ajax_' . static::REFRESH_OBF_API_CREDENTIALS_ACTION,
+			array( $this, 'refresh_obf_api_credentials' ) );
+
+		add_action( 'wp_ajax_' . static::TEST_OBF_API_CONNECTION_ACTION,
+			array( $this, 'test_connection' )
+		);
+	}
+
+	public function refresh_obf_api_credentials() {
+		$this->send_error_for_invalid_nonce();
+
+		if( current_user_can( 'manage_options' ) ) {
+			if( $this->is_valid_refresh_obf_api_credentials_request() ) {
+				$refresh_result =
+					$this->generate_client_certificate_private_key_pair( $_POST['api_token'] );
+				if( $refresh_result['response_code'] == 200  ) {
+					if( $this->credentials->save_new_credentials(
+						$refresh_result['data']['client_id'],
+						$refresh_result['data']['private_key'],
+						$refresh_result['data']['client_certificate']
+					)
+					) {
+						wp_send_json_success(
+							array(
+								'message' => 'new OBF api credentials saved',
+								'date' =>  Open_Badge_Factory_Credentials::get_formatted_credentials_saved_timestamp()
+							),
+							200
+						);
+					} else {
+						wp_send_json_error(
+							array( 'message' => 'OBF api credentials could not be saved' ),
+							500
+						);
+					}
+				} else {
+					wp_send_json_error(
+						array(
+							'message' => $refresh_result['data'],
+							'data' => $refresh_result
+						),
+						500
+					);
+				}
+			} else {
+				wp_send_json_error(
+					array( 'message' => 'No api token provided' ),
+					400
+				);
+			}
+		} else {
+			wp_send_json_error(
+				array( 'message' => 'Action requires manage_options capability' ),
+				403
+			);
+		}
+	}
+
+	private function send_error_for_invalid_nonce() {
+		$is_nonce_valid = check_ajax_referer( 'configuration', 'security', false);
+
+		if( ! $is_nonce_valid ) {
+			wp_send_json_error( 'Invalid request' );
+		}
+	}
+
+	private function is_valid_refresh_obf_api_credentials_request() {
+		if( empty( $_POST ) ) {
+			return false;
+		} else {
+			if( isset( $_POST['api_token'] ) && ! empty( $_POST['api_token'] ) && is_string( $_POST['api_token']  ) ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 
 	public function get_credentials() {
     	return $this->credentials;
 	}
 
-	static function generate_client_certificate_private_key_pair( $api_token ) {
+	private function generate_client_certificate_private_key_pair( $api_token ) {
         if( current_user_can( 'manage_options' ) ) {
             $obf_public_certificate = wp_remote_get( static::OBF_PUBLIC_CERTIFICATE_URL );
 
@@ -84,6 +166,7 @@ class Open_Badge_Factory_Api {
 
     public function test_connection() {
 		if( current_user_can( 'manage_options' ) ) {
+
 			$ch = curl_init();
 
 			$options = array(
@@ -97,19 +180,25 @@ class Open_Badge_Factory_Api {
 				CURLOPT_SSLKEY => $this->credentials->get_private_key_path(),
 			);
 
-			curl_setopt_array( $ch, $options );
+			curl_setopt_array($ch, $options);
 
-			$result = curl_exec( $ch );
-			$info = curl_getinfo( $ch );
+			$result = curl_exec($ch);
+			$info = curl_getinfo($ch);
 
-			curl_close( $ch );
+			curl_close($ch);
 
-			return array(
-				'response_code' => $info['http_code'],
-				'data' => $result
-			);
+			
+
+			if( $info['http_code'] == 200 && $result == $this->credentials->get_client_id() ) {
+				wp_send_json_success( array() );
+			} else {
+				wp_send_json_error( array() );
+			}
 		} else {
-			return 'Action requires manage_options capability';
+			wp_send_json_error(
+				array( 'message' => 'Action requires manage_options capability' ),
+				403
+			);
 		}
 	}
 }
