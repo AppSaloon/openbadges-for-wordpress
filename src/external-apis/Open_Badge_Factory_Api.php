@@ -45,7 +45,7 @@ class Open_Badge_Factory_Api {
 
             openssl_pkey_export( $private_key_result, $new_private_key );
 
-            $csr_res = openssl_csr_new( array( 'commonName' => $decrypted_api_token->subject ), $private_key_res );
+            $csr_res = openssl_csr_new( array( 'commonName' => $decrypted_api_token->subject ), $private_key_result );
 
             openssl_csr_export( $csr_res, $csr_output );
 

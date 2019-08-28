@@ -19,8 +19,8 @@ class Open_Badge_Factory_Credentials {
 		$this->credentials_path = $plugin_path . DIRECTORY_SEPARATOR . static::CREDENTIALS_FOLDER_NAME;
 		$this->ensure_credentials_directory_exists();
 
-		$this->private_key_path = $this->credentials_path . static::PRIVATE_KEY_FILE_NAME;
-		$this->certificate_path = $this->credentials_path . static::CLIENT_CERTIFICATE_FILE_NAME;
+		$this->private_key_path = $this->credentials_path . DIRECTORY_SEPARATOR . static::PRIVATE_KEY_FILE_NAME;
+		$this->certificate_path = $this->credentials_path . DIRECTORY_SEPARATOR . static::CLIENT_CERTIFICATE_FILE_NAME;
 		$this->client_id = $this->get_client_id();
 	}
 
