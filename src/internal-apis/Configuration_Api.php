@@ -9,11 +9,6 @@ class Configuration_Api {
     const REFRESH_OBF_API_CREDENTIALS_ACTION = 'refresh_obf_api_credentials';
     const TEST_OBF_API_CONNECTION_ACTION = 'test_obf_api_connection';
 
-    const OFB_CREDENTIALS_FOLDER_NAME = 'obf-credentials';
-    const CREDENTIALS_FOLDER_FILE_PERMISSIONS = 0755;
-    const PRIVATE_KEY_FILE_NAME = 'private.key';
-    const CLIENT_CERTIFICATE_FILE_NAME = 'certificate.pem';
-
 	protected $credentials;
 	protected $obf_api;
 
