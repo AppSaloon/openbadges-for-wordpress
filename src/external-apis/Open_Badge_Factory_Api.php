@@ -8,6 +8,7 @@ class Open_Badge_Factory_Api {
 	const TEST_OBF_API_CONNECTION_ACTION = 'test_obf_api_connection';
 	const OBF_GET_ALL_BADGES = 'obf_get_all_badges';
 	const OBF_GET_BADGE_BY_ID = 'obf_get_badge_by_id';
+	const OBF_ISSUE_BADGE = 'obf_issue_badge';
 
     // OpenBadgeFactory URLS
 	const OBF_PUBLIC_CERTIFICATE_URL = 'https://openbadgefactory.com/v1/client/OBF.rsa.pub';
@@ -38,6 +39,9 @@ class Open_Badge_Factory_Api {
 
 		add_action( 'wp_ajax_nopriv_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'get_badge_by_id' ) );
 		add_action( 'wp_ajax_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'get_badge_by_id' ) );
+
+		add_action( 'wp_ajax_nopriv_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
+		add_action( 'wp_ajax_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
 	}
 
 	public function refresh_obf_api_credentials() {
@@ -213,9 +217,55 @@ class Open_Badge_Factory_Api {
     	$this->send_json_response( $result, false );
 	}
 
+	public function ajax_issue_badge() {
+		if( ! isset( $_POST['badge_id'] ) || strlen( $_POST['badge_id'] ) == 0 ) {
+			wp_send_json_error( 'no badge_id given', 400 );
+		}
+
+		$badge_data = $this->get_badge_data( $_POST['badge_id'] );
+		$obf_request_body = new Issue_Open_Badge_Request_Body(
+								$this->credentials->get_client_id(),
+								$badge_data,
+								$_POST
+							);
+
+		if( $obf_request_body->is_valid_incoming_request_body() ) {
+			$result = $this->make_api_request( static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() .
+				DIRECTORY_SEPARATOR . $_POST['badge_id'], $obf_request_body->get_request_body() );
+			if( $result['http_code'] == 201 ) {
+				wp_send_json_success( 'badge was issued', 200);
+			} else {
+				wp_send_json_error( 'badge was not issued' );
+			}
+		} else {
+			wp_send_json_error( 'invalid request', 400 );
+		}
+	}
+
+
+
+
+
+	private function get_badge_data( $badge_id ) {
+		$result = $this->make_api_request(
+			static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() .
+			DIRECTORY_SEPARATOR . $badge_id
+		);
+
+		if( $result['http_code'] == 200 ) {
+			return json_decode( $result['data'], true );
+		} else {
+			return false;
+		}
+	}
+
 	private function send_json_response( $result, $send_as_array = true ) {
 		if( $result['http_code'] != 200 ) {
-			wp_send_json_error( $result['data'], $result['http_code'] );
+			if( $result['http_code'] == 201 ) {
+				wp_send_json_success( $result['data'] );
+			} else {
+				wp_send_json_error( $result['data'], $result['http_code'] );
+			}
 		} else {
 			if( $send_as_array ) {
 				wp_send_json_success( $this->convert_ldjson_to_array( $result['data'] ) );
@@ -238,7 +288,7 @@ class Open_Badge_Factory_Api {
 		return $lines;
 	}
 
-	private function make_api_request( $url ) {
+	private function make_api_request( $url, $body = array() ) {
 		$ch = curl_init();
 
 		$options = array(
@@ -251,6 +301,10 @@ class Open_Badge_Factory_Api {
 			CURLOPT_SSLCERT => $this->credentials->get_certificate_path(),
 			CURLOPT_SSLKEY => $this->credentials->get_private_key_path(),
 		);
+
+		if( sizeof( $body ) > 0 ) {
+			$options[CURLOPT_POSTFIELDS] = json_encode( $body );
+		}
 
 		curl_setopt_array($ch, $options);
 
