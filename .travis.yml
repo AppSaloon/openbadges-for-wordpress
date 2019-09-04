@@ -59,7 +59,6 @@ before_script:
     fi
   - |
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
-#      composer global require wp-coding-standards/wpcs
       composer g require --dev automattic/vipwpcs dealerdirect/phpcodesniffer-composer-installer
       phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
     fi
