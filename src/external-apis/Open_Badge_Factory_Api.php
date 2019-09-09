@@ -242,10 +242,6 @@ class Open_Badge_Factory_Api {
 		}
 	}
 
-
-
-
-
 	private function get_badge_data( $badge_id ) {
 		$result = $this->make_api_request(
 			static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() .
