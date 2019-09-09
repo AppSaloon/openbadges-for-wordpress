@@ -35,9 +35,6 @@ matrix:
       env:
       - WP_TRAVISCI=phpcs
       - SNIFF = 1
-    - php: 5.3
-      env: WP_VERSION=latest
-      dist: precise
 
 before_install:
   # Install PHP CodeSniffer.
