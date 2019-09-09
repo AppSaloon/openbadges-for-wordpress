@@ -90,7 +90,8 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 			$request_body_data
 		);
 
-		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
+		// An invalid expiration timestamp is simply ignored and the request body is deemed valid
+		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 	}
 
 	public function test_invalid_issued_on_timestamp() {
@@ -102,7 +103,8 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 			$request_body_data
 		);
 
-		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
+		// An invalid issued on timestamp is simply ignored and the request body is deemed valid
+		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 	}
 
 	public function test_only_email_subject_missing() {
