@@ -25,7 +25,6 @@ class Issue_Open_Badge_Request_Body {
 	private function set_request_body_for_api_use() {
 		$this->request_body = array(
 			'recipient' => $this->incoming_request_body['recipient'],
-			'api_consumer_id' => $this->client_id,
 		);
 
 		if( $this->has_valid_expiration_timestamp_in_incoming_request_body() ) {
@@ -41,6 +40,9 @@ class Issue_Open_Badge_Request_Body {
 		if( $this->has_valid_log_entry_in_incoming_request_body() ) {
 			$this->request_body['log_entry'] = $this->incoming_request_body['log_entry'];
 		}
+
+		$this->request_body['api_consumer_id'] = $this->client_id;
+
 	}
 
 	private function set_email_chunks_in_request_body() {
@@ -92,7 +94,6 @@ class Issue_Open_Badge_Request_Body {
 
 		return true;
 	}
-	
 
 	// Checks for the badge data
 	private function has_email_subject_in_badge_data() {
@@ -145,7 +146,7 @@ class Issue_Open_Badge_Request_Body {
 	}
 
 	private function has_valid_log_entry_in_incoming_request_body() {
-		return ( isset( $this->request_body['log_entry'] ) && is_array( $this->request_body['log_entry'] ) );
+		return ( isset( $this->incoming_request_body['log_entry'] ) && is_array( $this->incoming_request_body['log_entry'] ) );
 	}
 
 	private function has_email_subject_in_incoming_request_body() {

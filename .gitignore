@@ -1,3 +1,4 @@
 node_modules/
 obf-credentials/
 package-lock.json
+vendor/

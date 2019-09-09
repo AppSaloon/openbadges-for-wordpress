@@ -41,6 +41,31 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 	}
 
+	public function test_get_request_body() {
+		$request_body_object = new Issue_Open_Badge_Request_Body(
+			static::TEST_CLIENT_ID,
+			$this->complete_badge_data,
+			$this->complete_request_body
+		);
+
+		$expected_request_body = $this->complete_request_body;
+		$expected_request_body['api_consumer_id'] = static::TEST_CLIENT_ID;
+
+		$request_body_to_use = $request_body_object->get_request_body();
+
+		$this->assertSame( $expected_request_body, $request_body_to_use );
+
+		// should return null when invalid request_body was passed to constructor
+		$request_body_data = $this->complete_request_body;
+		$request_body_data['recipient'] = '';
+		$request_body_to_use = new Issue_Open_Badge_Request_Body(
+			static::TEST_CLIENT_ID,
+			$this->complete_badge_data,
+			$request_body_data
+		);
+		$this->assertNull( $request_body_to_use->get_request_body() );
+	}
+
 	public function test_no_recipients_provided() {
 		$request_body_data = $this->complete_request_body;
 		$request_body_data['recipient'] = array( );
