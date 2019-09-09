@@ -109,13 +109,13 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		// email_subject missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_subject'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $this->complete_request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $this->complete_request_body );
 		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 
 		// email subject missing from badge data and request body
 		$request_body = $this->complete_request_body;
 		unset( $request_body['email_subject'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $request_body );
 		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
 	}
 
@@ -123,13 +123,13 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		// email_body missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_body'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $this->complete_request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $this->complete_request_body );
 		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 
 		// email_body missing from badge data and request body
 		$request_body = $this->complete_request_body;
 		unset( $request_body['email_body'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $request_body );
 		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
 	}
 
@@ -137,13 +137,13 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		// email_link_text missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_link_text'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $this->complete_request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $this->complete_request_body );
 		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 
 		// email_link_text missing from badge data and request body
 		$request_body = $this->complete_request_body;
 		unset( $request_body['email_link_text'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $request_body );
 		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
 	}
 
@@ -151,13 +151,13 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		// email_footer missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_footer'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $this->complete_request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $this->complete_request_body );
 		$this->assertTrue( $request_body->is_valid_incoming_request_body() );
 
 		// email_footer missing from badge data and request body
 		$request_body = $this->complete_request_body;
 		unset( $request_body['email_footer'] );
-		$request_body = new Issue_Open_Badge_Request_Body( $badge_data, $request_body );
+		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $request_body );
 		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
 	}
 }
