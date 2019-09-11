@@ -35,6 +35,8 @@ function _manually_load_plugin() {
 	require  $plugin_path . '/openbadges-for-wordpress.php';
 
 	if( getenv( 'IS_TRAVIS') ) {
+		$WP_VERSION = getenv( 'WP_VERSION' );
+
 		shell_exec( 'cd ' . $plugin_path );
 		shell_exec( 'composer install' );
 		if( ! class_exists( 'WP_Filesystem_Base') ) {
@@ -42,6 +44,12 @@ function _manually_load_plugin() {
 			if ( ! $_tests_dir ) {
 				$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 			}
+
+			// download the WordPress base filesystem API class
+			shell_exec( 'mkdir -p ' . $_tests_dir . '/src/wp-admin/includes' );
+			shell_exec( 'mkdir -p ' . $_tests_dir . '/src/wp-includes' );
+			shell_exec( 'wget -q -nv -O ' . $_tests_dir . '/src/wp-admin/includes/class-wp-filesystem-base.php http://develop.svn.wordpress.org/branches/' . $WP_VERSION . '/src/wp-admin/includes/class-wp-filesystem-base.php' );
+			shell_exec( 'wget -q -nv -O ' . $_tests_dir . '/src/wp-includes/class-wp-error.php http://develop.svn.wordpress.org/branches/' . $WP_VERSION . '/src/wp-includes/class-wp-error.php' );
 
 			// load WordPress' base filesystem API class
 			require_once ( $_tests_dir . '/src/wp-admin/includes/class-wp-filesystem-base.php' );
