@@ -6,7 +6,7 @@
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
-$is_travis_run = getenv( 'IS_TRAVIS_RUN' );
+$is_travis_run = getenv( 'IS_TRAVIS' );
 
 if( $is_travis_run ) {
 	$WP_VERSION = getenv( 'WP_VERSION' );
@@ -31,7 +31,11 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/openbadges-for-wordpress.php';
+	$plugin_path = dirname( dirname( __FILE__ ) );
+	require  $plugin_path . '/openbadges-for-wordpress.php';
+	//if( getenv( 'IS_TRAVIS'))
+	//shell_exec( 'cd ' . $plugin_path );
+	//shell_exec( 'composer install' );
 	// Load the filesystem API shim that uses mock filesystems
 	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-filesystem-mock.php' );
 	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-mock-filesystem.php' );
