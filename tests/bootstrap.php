@@ -33,9 +33,12 @@ require_once $_tests_dir . '/includes/functions.php';
 function _manually_load_plugin() {
 	$plugin_path = dirname( dirname( __FILE__ ) );
 	require  $plugin_path . '/openbadges-for-wordpress.php';
-	//if( getenv( 'IS_TRAVIS'))
-	//shell_exec( 'cd ' . $plugin_path );
-	//shell_exec( 'composer install' );
+
+	if( getenv( 'IS_TRAVIS') ) {
+		shell_exec( 'cd ' . $plugin_path );
+		shell_exec( 'composer install' );
+	}
+
 	// Load the filesystem API shim that uses mock filesystems
 	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-filesystem-mock.php' );
 	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-mock-filesystem.php' );
