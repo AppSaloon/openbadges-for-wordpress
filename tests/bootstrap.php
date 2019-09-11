@@ -6,6 +6,14 @@
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
+$is_travis_run = getenv( 'IS_TRAVIS_RUN' );
+
+if( $is_travis_run ) {
+	$WP_VERSION = getenv( 'WP_VERSION' );
+} else {
+	$WP_VERSION = '5.2';
+}
+
 
 if ( ! $_tests_dir ) {
 	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
@@ -24,8 +32,30 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/openbadges-for-wordpress.php';
+	// Load the filesystem API shim that uses mock filesystems
+	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-filesystem-mock.php' );
+	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-mock-filesystem.php' );
+
+
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+// download the WordPress base filesystem API class
+shell_exec( 'mkdir -p ' . $_tests_dir . '/src/wp-admin/includes' );
+shell_exec( 'mkdir -p ' . $_tests_dir . '/src/wp-includes' );
+shell_exec( 'wget -q -nv -O ' . $_tests_dir . '/src/wp-admin/includes/class-wp-filesystem-base.php http://develop.svn.wordpress.org/branches/' . $WP_VERSION . '/src/wp-admin/includes/class-wp-filesystem-base.php' );
+shell_exec( 'wget -q -nv -O ' . $_tests_dir . '/src/wp-includes/class-wp-error.php http://develop.svn.wordpress.org/branches/' . $WP_VERSION . '/src/wp-includes/class-wp-error.php' );
+
+// load WordPress' base filesystem API class
+require_once ( $_tests_dir . '/src/wp-admin/includes/class-wp-filesystem-base.php' );
+
+
+// Load the filesystem API shim that uses mock filesystems
+//require_once ( $_tests_dir . '/../vendor/jdgrimes/wp-filesystem-mock-src/wp-filesystem-mock.php' );
+
+/**
+ * The mock filesystem class.
+ */
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
