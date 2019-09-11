@@ -35,8 +35,6 @@ function _manually_load_plugin() {
 	// Load the filesystem API shim that uses mock filesystems
 	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-filesystem-mock.php' );
 	require_once ( dirname( dirname( __FILE__ ) ) . '/vendor/jdgrimes/wp-filesystem-mock/src/wp-mock-filesystem.php' );
-
-
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
