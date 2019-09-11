@@ -37,6 +37,15 @@ function _manually_load_plugin() {
 	if( getenv( 'IS_TRAVIS') ) {
 		shell_exec( 'cd ' . $plugin_path );
 		shell_exec( 'composer install' );
+		if( ! class_exists( 'WP_Filesystem_Base') ) {
+			$_tests_dir = getenv( 'WP_TESTS_DIR' );
+			if ( ! $_tests_dir ) {
+				$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+			}
+
+			// load WordPress' base filesystem API class
+			require_once ( $_tests_dir . '/src/wp-admin/includes/class-wp-filesystem-base.php' );
+		}
 	}
 
 	// Load the filesystem API shim that uses mock filesystems
