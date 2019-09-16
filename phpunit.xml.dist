@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit
-	bootstrap="tests/bootstrap.php"
+	bootstrap="tests/bootstrap-wp-mock.php"
 	backupGlobals="false"
 	colors="true"
 	convertErrorsToExceptions="true"
@@ -10,6 +10,7 @@
 	<testsuites>
 		<testsuite name="unittests">
 			<directory prefix="test-" suffix=".php">./tests/unit-tests</directory>
+			<exclude>./tests/unit-tests/test-open-badge-factory-credentials.php</exclude>
 		</testsuite>
 	</testsuites>
 </phpunit>

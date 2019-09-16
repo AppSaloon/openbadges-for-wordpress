@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../src/external-apis/Issue_Open_Badge_Request_Body.php';
 use appsaloon\obwp\external_apis\openbadgefactory\Issue_Open_Badge_Request_Body;
 
-class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
+class Test_Issue_Open_Badge_Request_Body extends \WP_Mock\Tools\TestCase {
 	const TEST_CLIENT_ID = 'test_id';
 	protected $complete_badge_data = array(
 		'badge_id' => '2136546',
@@ -31,7 +31,17 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		'api_consumer_id' => 'test_id'
 	);
 
+	public function setUp() : void {
+		\WP_Mock::setUp();
+	}
+
+	public function tearDown() : void {
+		\WP_Mock::tearDown();
+	}
+
 	public function test_complete_badge_data_and_request_body() {
+		$this->mock_is_email_for_correct_emails( 2 );
+
 		$request_body = new Issue_Open_Badge_Request_Body(
 			'test_id',
 			$this->complete_badge_data,
@@ -42,6 +52,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_get_request_body() {
+		$this->mock_is_email_for_correct_emails( 1 );
 		$request_body_object = new Issue_Open_Badge_Request_Body(
 			static::TEST_CLIENT_ID,
 			$this->complete_badge_data,
@@ -107,6 +118,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_invalid_expiration_timestamp() {
+		$this->mock_is_email_for_correct_emails( 2 );
 		$request_body_data = $this->complete_request_body;
 		$request_body_data['expires'] = 'not_a_timestamp';
 		$request_body = new Issue_Open_Badge_Request_Body(
@@ -120,6 +132,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_invalid_issued_on_timestamp() {
+		$this->mock_is_email_for_correct_emails( 2 );
 		$request_body_data = $this->complete_request_body;
 		$request_body_data['issued_on'] = 'not_a_timestamp';
 		$request_body = new Issue_Open_Badge_Request_Body(
@@ -133,6 +146,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_only_email_subject_missing() {
+		$this->mock_is_email_for_correct_emails( 4 );
 		// email_subject missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_subject'] );
@@ -147,6 +161,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_only_email_body_missing() {
+		$this->mock_is_email_for_correct_emails( 4 );
 		// email_body missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_body'] );
@@ -161,6 +176,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_only_email_link_text_missing() {
+		$this->mock_is_email_for_correct_emails( 4 );
 		// email_link_text missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_link_text'] );
@@ -175,6 +191,7 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 	}
 
 	public function test_only_email_footer_missing() {
+		$this->mock_is_email_for_correct_emails( 4 );
 		// email_footer missing from badge data but present in request body
 		$badge_data = $this->complete_badge_data;
 		unset( $badge_data['email_footer'] );
@@ -186,5 +203,25 @@ class Test_Issue_Open_Badge_Request_Body extends WP_UnitTestCase {
 		unset( $request_body['email_footer'] );
 		$request_body = new Issue_Open_Badge_Request_Body( static::TEST_CLIENT_ID, $badge_data, $request_body );
 		$this->assertFalse( $request_body->is_valid_incoming_request_body() );
+	}
+
+	private function mock_is_email_for_correct_emails( $count ) {
+		\WP_Mock::userFunction(
+			'is_email',
+			array(
+				'times' => $count,
+				'args' => 'john@test.com',
+				'return' => 'john@test.com',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_email',
+			array(
+				'times' => $count,
+				'args' => 'roger@test.com',
+				'return' => 'roger@test.com',
+			)
+		);
 	}
 }
