@@ -64,10 +64,6 @@ shell_exec( 'wget -q -nv -O ' . $_tests_dir . '/src/wp-includes/class-wp-error.p
 // load WordPress' base filesystem API class
 require_once ( $_tests_dir . '/src/wp-admin/includes/class-wp-filesystem-base.php' );
 
-
-// Load the filesystem API shim that uses mock filesystems
-//require_once ( $_tests_dir . '/../vendor/jdgrimes/wp-filesystem-mock-src/wp-filesystem-mock.php' );
-
 /**
  * The mock filesystem class.
  */
