@@ -10,7 +10,6 @@
 	<testsuites>
 		<testsuite name="unittests">
 			<directory prefix="test-" suffix=".php">./tests/unit-tests</directory>
-			<exclude>./tests/unit-tests/test-open-badge-factory-credentials.php</exclude>
 		</testsuite>
 	</testsuites>
 </phpunit>

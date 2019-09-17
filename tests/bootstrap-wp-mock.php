@@ -11,3 +11,4 @@ WP_Mock::bootstrap();
  * should be files that define the functions and classes you're going to test.
  */
 require_once __DIR__ . '/../src/external-apis/Issue_Open_Badge_Request_Body.php';
+require_once __DIR__ . '/../src/external-apis/Open_Badge_Factory_Credentials.php';
