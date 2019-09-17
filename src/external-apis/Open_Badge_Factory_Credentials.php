@@ -26,7 +26,12 @@ class Open_Badge_Factory_Credentials {
 
 	private function ensure_credentials_directory_exists() {
 		if( ! file_exists( $this->credentials_path ) ) {
-			mkdir( $this->credentials_path, 0755 );
+			$old_umask = umask(0);
+			$directory_was_created = mkdir( $this->credentials_path, 0755 );
+			umask( $old_umask );
+			if( ! $directory_was_created ) {
+				throw new \Exception( 'Can not write to directory: ' . $this->credentials_path );
+			}
 		}
 	}
 
