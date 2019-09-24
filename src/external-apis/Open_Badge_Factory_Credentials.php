@@ -46,7 +46,15 @@ class Open_Badge_Factory_Credentials {
 	}
 
 	private function save_private_key( $private_key ) {
-		return (bool) file_put_contents( $this->private_key_path, $private_key );
+		if( file_exists( $this->private_key_path ) ) {
+			if( is_writable( $this->private_key_path ) ) {
+				return (bool) file_put_contents( $this->private_key_path, $private_key );
+			} else {
+				return false;
+			}
+		} else {
+			return (bool) file_put_contents( $this->private_key_path, $private_key );
+		}
 	}
 
 	public function get_private_key_path() {
@@ -54,7 +62,15 @@ class Open_Badge_Factory_Credentials {
 	}
 
 	private function save_certificate( $certificate ) {
-		return (bool) file_put_contents( $this->certificate_path, $certificate );
+		if( file_exists( $this->certificate_path ) ) {
+			if( is_writable( $this->certificate_path ) ) {
+				return (bool) file_put_contents( $this->certificate_path, $certificate );
+			} else {
+				return false;
+			}
+		} else {
+			return (bool) file_put_contents( $this->certificate_path, $certificate );
+		}
 	}
 
 	public function get_certificate_path() {
