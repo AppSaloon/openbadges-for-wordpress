@@ -369,7 +369,7 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->mock_get_option_client_id_success( 1, self::NEW_CLIENT_ID );
 
 		$plugin_folder_object = $this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER );
-		// make the private key file writable
+		// make the private key file writable because we are not testing for a failed write to private key file
 		$private_key = $plugin_folder_object->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME );
 		$private_key->chown( vfsStream::OWNER_ROOT );
 		$private_key->chmod( 0755 );
