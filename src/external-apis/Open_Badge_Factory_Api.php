@@ -23,6 +23,7 @@ class Open_Badge_Factory_Api {
     public function __construct( Open_Badge_Factory_Credentials $credentials_object ) {
 		$this->credentials = $credentials_object;
 		$this->add_actions_for_ajax_calls();
+		$this->add_shortcodes();
 	}
 
 	private function add_actions_for_ajax_calls() {
@@ -34,14 +35,45 @@ class Open_Badge_Factory_Api {
 		);
 
 
-		add_action( 'wp_ajax_nopriv_' . static::OBF_GET_ALL_BADGES, array( $this, 'get_all_badges' ) );
-		add_action( 'wp_ajax_' . static::OBF_GET_ALL_BADGES, array( $this, 'get_all_badges' ) );
+		add_action( 'wp_ajax_nopriv_' . static::OBF_GET_ALL_BADGES, array( $this, 'ajax_get_all_badges' ) );
+		add_action( 'wp_ajax_' . static::OBF_GET_ALL_BADGES, array( $this, 'ajax_get_all_badges' ) );
 
-		add_action( 'wp_ajax_nopriv_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'get_badge_by_id' ) );
-		add_action( 'wp_ajax_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'get_badge_by_id' ) );
+		add_action( 'wp_ajax_nopriv_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'ajax_get_badge_by_id' ) );
+		add_action( 'wp_ajax_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'ajax_get_badge_by_id' ) );
 
 		add_action( 'wp_ajax_nopriv_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
 		add_action( 'wp_ajax_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
+	}
+
+	private function add_shortcodes() {
+    	add_shortcode( 'obf_display_claimable_badge', array( $this, 'display_claimable_badge' ) );
+	}
+
+	public function display_claimable_badge( $atts ) {
+    	$is_user_allowed_to_claim_badge = is_user_logged_in();
+
+    	if( $is_user_allowed_to_claim_badge ) {
+    		$user_email = wp_get_current_user()->data->user_email;
+		} else {
+    		$user_email = '';
+		}
+
+    	if( $badge = $this->get_badge_by_id( $atts['id'] ) ) {
+			return $this->load_claimable_badge_template( $is_user_allowed_to_claim_badge, $user_email, $badge );
+		} else {
+    		return 'invalid badge_id in shortcode';
+		}
+	}
+
+	private function load_claimable_badge_template( $is_user_allowed_to_claim_badge, $user_email, $badge) {
+		ob_start();
+		$template_from_theme = locate_template( 'openbadges-for-wordpress/open-badge-claim.php' );
+		if( '' !== $template_from_theme  ){
+			include ( $template_from_theme );
+		} else {
+			include __DIR__ . '/../../templates/open-badge-claim.php';
+		}
+		return ob_get_clean();
 	}
 
 	public function refresh_obf_api_credentials() {
@@ -199,12 +231,12 @@ class Open_Badge_Factory_Api {
 		}
 	}
 
-	public function get_all_badges() {
+	public function ajax_get_all_badges() {
 		$result = $this->make_api_request( static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() );
 		$this->send_json_response( $result );
 	}
 
-	public function get_badge_by_id() {
+	public function ajax_get_badge_by_id() {
     	if( ! isset( $_POST['badge_id'] ) || strlen( $_POST['badge_id'] ) == 0 ) {
     		wp_send_json_error( 'no badge_id given', 400 );
 		}
@@ -222,7 +254,7 @@ class Open_Badge_Factory_Api {
 			wp_send_json_error( 'no badge_id given', 400 );
 		}
 
-		$badge_data = $this->get_badge_data( $_POST['badge_id'] );
+		$badge_data = $this->get_badge_by_id( $_POST['badge_id'] );
 		$obf_request_body = new Issue_Open_Badge_Request_Body(
 								$this->credentials->get_client_id(),
 								$badge_data,
@@ -242,7 +274,7 @@ class Open_Badge_Factory_Api {
 		}
 	}
 
-	private function get_badge_data( $badge_id ) {
+	private function get_badge_by_id($badge_id ) {
 		$result = $this->make_api_request(
 			static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() .
 			DIRECTORY_SEPARATOR . $badge_id
