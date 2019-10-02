@@ -41,7 +41,7 @@ class Open_Badge_Factory_Api {
 		add_action( 'wp_ajax_nopriv_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'ajax_get_badge_by_id' ) );
 		add_action( 'wp_ajax_' . static::OBF_GET_BADGE_BY_ID, array( $this, 'ajax_get_badge_by_id' ) );
 
-		add_action( 'wp_ajax_nopriv_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
+		//add_action( 'wp_ajax_nopriv_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
 		add_action( 'wp_ajax_' . static::OBF_ISSUE_BADGE, array( $this, 'ajax_issue_badge' ) );
 	}
 
