@@ -1,0 +1,1 @@
+console.log( 'claim-badge.js is loaded now' );

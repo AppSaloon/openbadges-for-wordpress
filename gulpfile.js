@@ -42,12 +42,14 @@ gulp.task('sass', function() {
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    gulp.watch(jsconfig.scripts.src, ['scripts']).on('change', function(evt) {
-      changeScripts(evt);
-    });
-    gulp.watch('assets/scss/**/*.scss', ['sass']).on('change', function(et) {
-      changeCss(et);
-    });
+    gulp.watch( 'assets/scss/**/*.scss', gulp.series('sass'));
+    gulp.watch(jsconfig.scripts.src, gulp.series('scripts'));
+    //gulp.watch(jsconfig.scripts.src, ['scripts']).on('change', function(evt) {
+    //  changeScripts(evt);
+    //});
+    //gulp.watch('assets/scss/**/*.scss', ['sass']).on('change', function(et) {
+    //  changeCss(et);
+    //});
 });
 
 var changeScripts = function(evt) {

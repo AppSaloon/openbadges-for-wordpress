@@ -2,7 +2,8 @@
 	"scripts" : {
 		"src" : [
 			"assets/js/vendor/tipped.js",
-			"assets/js/admin-pages/configuration.js"
+			"assets/js/admin-pages/configuration.js",
+		  	"assets/js/claim-badge.js"
 		]
 	}
 }
