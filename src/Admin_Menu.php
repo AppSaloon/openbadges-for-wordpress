@@ -82,9 +82,9 @@ class Admin_Menu {
         $script_handle = $hook . strtolower( static::class ) . '_js';
         $ajax_nonce = wp_create_nonce($this->submenu_hooks[$hook] );
         
-        wp_register_style('openbadges_css', $this->plugin_url.'/dist/css/openbadges.css');
+        wp_register_style('openbadges_css', $this->plugin_url.'/dist/css/admin_openbadges.css');
         wp_enqueue_style('openbadges_css');
-        wp_enqueue_script('openbadges_js', $this->plugin_url.'/dist/js/openbadges.js', 'jquery' , 1 , true );
+        wp_enqueue_script('openbadges_js', $this->plugin_url.'/dist/js/admin_openbadges.js', 'jquery' , 1 , true );
 
         wp_localize_script(
             'openbadges_js',

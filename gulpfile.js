@@ -17,10 +17,18 @@ var onError = function(err) {
   this.emit('end');
 };
 
-// Concatenate & Minify JS
+// Concatenate & Minify Admin JS
 // gulp scripts
-gulp.task('scripts', function() {
-  return gulp.src(jsconfig.scripts.src)
+gulp.task('adminscripts', function() {
+  return gulp.src(jsconfig.adminscripts.src)
+    .pipe(plumber({errorHandler: onError}))
+    .pipe(concat('admin_openbadges.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('dist/js/'))
+    .pipe(size());
+});
+gulp.task('frontendscripts', function() {
+  return gulp.src(jsconfig.frontendscripts.src)
     .pipe(plumber({errorHandler: onError}))
     .pipe(concat('openbadges.js'))
     .pipe(uglify())
@@ -30,8 +38,17 @@ gulp.task('scripts', function() {
 
 //css task
 // gulp sass
+gulp.task('adminsass', function() {
+    gulp.src('assets/scss/admin-pages/**/*.scss')
+      .pipe(plumber({errorHandler: onError}))
+      .pipe(sass())
+      .pipe(minifycss({zindex: false}))
+      .pipe(rename('admin-openbadges.css'))
+      .pipe(size())
+      .pipe(gulp.dest('dist/css/'));
+});
 gulp.task('sass', function() {
-    gulp.src('assets/scss/**/*.scss')
+    gulp.src('assets/scss/frontend/**/*.scss')
       .pipe(plumber({errorHandler: onError}))
       .pipe(sass())
       .pipe(minifycss({zindex: false}))
@@ -42,19 +59,8 @@ gulp.task('sass', function() {
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    gulp.watch( 'assets/scss/**/*.scss', gulp.series('sass'));
-    gulp.watch(jsconfig.scripts.src, gulp.series('scripts'));
-    //gulp.watch(jsconfig.scripts.src, ['scripts']).on('change', function(evt) {
-    //  changeScripts(evt);
-    //});
-    //gulp.watch('assets/scss/**/*.scss', ['sass']).on('change', function(et) {
-    //  changeCss(et);
-    //});
+    gulp.watch( 'assets/scss/admin-pages/**/*.scss', gulp.series('adminsass'));
+    gulp.watch( 'assets/scss/frontend/**/*.scss', gulp.series('sass'));
+    gulp.watch(jsconfig.adminscripts.src, gulp.series('adminscripts'));
+    gulp.watch(jsconfig.frontendscripts.src, gulp.series('frontendscripts'));
 });
-
-var changeScripts = function(evt) {
-  gutil.log('File', gutil.colors.cyan(evt.path.replace(new RegExp('/.*(?=/assets/js/)/'), '')), 'is', gutil.colors.magenta(evt.type));
-};
-var changeCss = function(et) {
-  gutil.log('File', gutil.colors.cyan(et.path.replace(new RegExp('/.*(?=/assets/scss/)/'), '')), 'is', gutil.colors.magenta(et.type));
-};

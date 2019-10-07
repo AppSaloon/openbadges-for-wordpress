@@ -1,9 +1,13 @@
 {
-	"scripts" : {
+	"adminscripts" : {
 		"src" : [
 			"assets/js/vendor/tipped.js",
-			"assets/js/admin-pages/configuration.js",
-		  	"assets/js/claim-badge.js"
+			"assets/js/admin-pages/configuration.js"
+		]
+	},
+	"frontendscripts" : {
+		"src" : [
+		  "assets/js/frontend/claim-badge.js"
 		]
 	}
 }
