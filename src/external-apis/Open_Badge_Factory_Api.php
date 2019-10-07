@@ -250,6 +250,7 @@ class Open_Badge_Factory_Api {
 	}
 
 	public function ajax_issue_badge() {
+    	// TODO: check security nonce!!
 		if( ! isset( $_POST['badge_id'] ) || strlen( $_POST['badge_id'] ) == 0 ) {
 			wp_send_json_error( 'no badge_id given', 400 );
 		}

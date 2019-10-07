@@ -46,7 +46,8 @@
 		<img src="<?php echo $badge['image'];?>" />
 		<h2><?php echo $badge['name'];?></h2>
 		<p><?php echo __( 'Claim your badge and showcase your knowledge in your Open Badges Passport!', 'obwp' );?></p>
-		<button id="open-badge-to-claim-<?php echo $badge['id'] ?>" badge_id="<?php echo $badge['id'];?>" user_email="<?php echo $user_email;?>">Mail me my badge</button>
+		<?php $nonce = wp_create_nonce( 'open-badge-issue-' . $badge['id'] ) ?>
+		<button id="open-badge-to-claim-<?php echo $badge['id'] ?>" data-badge_id="<?php echo $badge['id'];?>" data-user_email="<?php echo $user_email;?>" data-nonce="<?php echo $nonce ?>">Mail me my badge</button>
 	</div>
 <?php else:?>
 <div>
