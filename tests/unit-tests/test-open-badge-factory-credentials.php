@@ -20,12 +20,17 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 	const NEW_PRIVATE_KEY = 'a new private key';
 	const NEW_CLIENT_CERTIFICATE = 'a new certificate';
 
-	const UNWRITEABLE_ROOT = 'unwritable_root';
-	const POPULATED_PLUGIN_FOLDER = 'populated_plugin_folder';
-	const POPULATED_UNWRITEABLE_PLUGIN_FOLDER = 'populated_unwriteable_plugin_folder';
-	const EMPTY_FOLDER = 'empty_folder';
+	const UNWRITEABLE_ROOT = 'test_folder00';
+	const POPULATED_PLUGIN_FOLDER = 'test_folder01';
+	const FOLDER_WITH_UNWRITEABLE_PRIVATE_KEY_FILE = 'test_folder02';
+	const POPULATED_UNWRITEABLE_PLUGIN_FOLDER = 'test_folder03';
+	const EMPTY_FOLDER = 'test_folder04';
 
-	const TEST_FOLDER = 'test_folder';
+	const FOLDER_WITH_UNWRITEABLE_CERTIFICATE_FILE = 'test_folder';
+	const RELATIVE_PRIVATE_KEY_PATH = Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME . DIRECTORY_SEPARATOR .
+									  Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
+	const RELATIVE_CERTIFICATE_FILE_PATH = Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME . DIRECTORY_SEPARATOR .
+										   Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
 
 	public function setUp() : void {
 		WP_Mock::setUp();
@@ -39,13 +44,19 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 					Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME => self::OLD_CLIENT_CERTIFICATE,
 				)
 			),
+			self::FOLDER_WITH_UNWRITEABLE_PRIVATE_KEY_FILE => array(
+				Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME => array(
+					Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME => self::OLD_PRIVATE_KEY,
+					Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME => self::OLD_CLIENT_CERTIFICATE,
+				)
+			),
 			self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER => array(
 				Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME => array(
 					Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME => self::OLD_PRIVATE_KEY,
 					Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME => self::OLD_CLIENT_CERTIFICATE,
 				)
 			),
-			self::TEST_FOLDER => array(
+			self::FOLDER_WITH_UNWRITEABLE_CERTIFICATE_FILE => array(
 				Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME => array(
 					Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME => self::OLD_PRIVATE_KEY,
 					Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME => self::OLD_CLIENT_CERTIFICATE,
@@ -62,7 +73,8 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 	private function set_filemock_permissions() {
 		$this->set_unwriteable_root_permissions();
 		$this->set_populated_unwriteable_plugin_folder_permissions();
-		$this->set_test_folder_permissions();
+		$this->set_folder_with_unwriteable_private_key_file_permissions();
+		$this->set_folder_with_unwriteable_certificate_file_permissions();
 	}
 
 	private function set_unwriteable_root_permissions() {
@@ -78,8 +90,14 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER)->chmod( 0000 );
 	}
 
-	private function set_test_folder_permissions() {
-		$test_folder_key_file =$this->root->getChild( self::TEST_FOLDER )->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME);
+	private function set_folder_with_unwriteable_private_key_file_permissions() {
+		$test_folder_key_file =$this->root->getChild( self::FOLDER_WITH_UNWRITEABLE_PRIVATE_KEY_FILE )->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME);
+		$test_folder_key_file->chmod( 0444 );
+		$test_folder_key_file->chown( vfsStream::OWNER_USER_2 );
+	}
+
+	private function set_folder_with_unwriteable_certificate_file_permissions() {
+		$test_folder_key_file =$this->root->getChild( self::FOLDER_WITH_UNWRITEABLE_CERTIFICATE_FILE )->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME);
 		$test_folder_key_file->chmod( 0444 );
 		$test_folder_key_file->chown( vfsStream::OWNER_USER_2 );
 	}
@@ -358,73 +376,66 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 	}
 
 	public function test_save_new_credentials_with_existing_credentials_and_failed_private_key_file_creation() {
+		// mock get_option() and update_option()
 		$this->mock_get_option_client_id_success( 1 );
 		$this->mock_get_option_client_id_success( 1, self::NEW_CLIENT_ID );
-
-		$plugin_folder_object = $this->root->getChild( self::TEST_FOLDER );
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-
-		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
-
 		$this->mock_update_option_client_id_success( self::NEW_CLIENT_ID );
 
-		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
+		// get folder for testing
+		$plugin_folder_object = $this->root->getChild( self::FOLDER_WITH_UNWRITEABLE_PRIVATE_KEY_FILE );
 
+		// run the code to be tested
+		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+
+		//begin assertions
 		$this->assertFalse( $is_save_successful );
 
 		// test the private key file was untouched
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_PRIVATE_KEY_PATH ) );
 
-		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
-
-		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
+		$private_key_file = $plugin_folder_object->getChild( self::RELATIVE_PRIVATE_KEY_PATH );
 		$this->assertEquals( self::OLD_PRIVATE_KEY, file_get_contents( $private_key_file->url() ) );
 
 		// tests if the old certificate file was untouched
-		$certificate_file_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $certificate_file_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_CERTIFICATE_FILE_PATH ) );
 
-		$certificate_file = $plugin_folder_object->getChild( $certificate_file_path );
+		$certificate_file = $plugin_folder_object->getChild( self::RELATIVE_CERTIFICATE_FILE_PATH );
 		$this->assertEquals( self::OLD_CLIENT_CERTIFICATE, file_get_contents( $certificate_file->url() ) );
 	}
 
 	public function test_save_new_credentials_with_existing_credentials_and_failed_certificate_file_creation() {
+		// mock get_option() and update_option()
 		$this->mock_get_option_client_id_success( 1 );
 		$this->mock_get_option_client_id_success( 1, self::NEW_CLIENT_ID );
-
-		$plugin_folder_object = $this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER );
-		// make the private key file writable because we are not testing for a failed write to private key file
-		$private_key = $plugin_folder_object->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME );
-		$private_key->chown( vfsStream::OWNER_ROOT );
-		$private_key->chmod( 0755 );
-
-		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
-
 		$this->mock_update_option_client_id_success( self::NEW_CLIENT_ID );
 
-		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
+		// get folder for testing
+		$plugin_folder_object = $this->root->getChild( self::FOLDER_WITH_UNWRITEABLE_CERTIFICATE_FILE );
 
+		// run the code to be tested
+		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+
+		//begin assertions
 		$this->assertFalse( $is_save_successful );
 
 		// test the private key file was changed, this should change because it's saved before the unwritable certificate
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_PRIVATE_KEY_PATH ) );
 
-		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
+		$private_key_file = $plugin_folder_object->getChild( self::RELATIVE_PRIVATE_KEY_PATH );
 		$this->assertEquals( self::NEW_PRIVATE_KEY, file_get_contents( $private_key_file->url() ) );
 
 		// tests if the old certificate file was untouched
-		$certificate_file_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $certificate_file_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_CERTIFICATE_FILE_PATH ) );
 
-		$certificate_file = $plugin_folder_object->getChild( $certificate_file_path );
+		$certificate_file = $plugin_folder_object->getChild( self::RELATIVE_CERTIFICATE_FILE_PATH );
 		$this->assertEquals( self::OLD_CLIENT_CERTIFICATE, file_get_contents( $certificate_file->url() ) );
 	}
 }
