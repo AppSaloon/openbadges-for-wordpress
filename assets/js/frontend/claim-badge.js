@@ -28,7 +28,9 @@ jQuery(document).ready(function( $ ) {
 			// attached to button via data attribute, must be put inside an array to make api call
 			recipient: [$(this).data('user_email')],
 			// attached to button via data attribute
-			security: $(this).data('nonce') 
+			security: $(this).data('nonce'),
+			email_footer: 'You have claimed this badge on the railtalent.org website',
+			email_link_text: 'email link text that obf will ignore anyway'
 		}
 
 		console.log(openbadges_ajax_object.ajaxurl)
@@ -42,7 +44,7 @@ jQuery(document).ready(function( $ ) {
 		// 	})
 
 		$.ajax({
-			type: "get",
+			type: "post",
 			dataType: "json",
 			url: openbadges_ajax_object.ajaxurl,
 			action: "obf_issue_badge",
