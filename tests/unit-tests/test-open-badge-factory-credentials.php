@@ -25,6 +25,8 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 	const POPULATED_UNWRITEABLE_PLUGIN_FOLDER = 'populated_unwriteable_plugin_folder';
 	const EMPTY_FOLDER = 'empty_folder';
 
+	const TEST_FOLDER = 'test_folder';
+
 	public function setUp() : void {
 		WP_Mock::setUp();
 		vfsStream::umask( 022 );
@@ -43,6 +45,12 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 					Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME => self::OLD_CLIENT_CERTIFICATE,
 				)
 			),
+			self::TEST_FOLDER => array(
+				Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME => array(
+					Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME => self::OLD_PRIVATE_KEY,
+					Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME => self::OLD_CLIENT_CERTIFICATE,
+				)
+			),
 			self::EMPTY_FOLDER => array(),
 		);
 
@@ -55,6 +63,10 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 			$child->chmod( 0444 );
 			$child->chown( vfsStream::OWNER_USER_2);
 		}
+
+		$test_folder_key_file =$this->root->getChild( self::TEST_FOLDER )->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME);
+		$test_folder_key_file->chmod( 0444 );
+		$test_folder_key_file->chown( vfsStream::OWNER_USER_2 );
 
 		$this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER)->chmod( 0000 );
 	}
@@ -336,7 +348,7 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->mock_get_option_client_id_success( 1 );
 		$this->mock_get_option_client_id_success( 1, self::NEW_CLIENT_ID );
 
-		$plugin_folder_object = $this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER );
+		$plugin_folder_object = $this->root->getChild( self::TEST_FOLDER );
 		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
 
 		$this->mock_update_option_client_id_success( self::NEW_CLIENT_ID );
