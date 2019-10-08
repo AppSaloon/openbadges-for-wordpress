@@ -1,0 +1,38 @@
+//   /$$$$$$$                  /$$                    
+//  | $$__  $$                | $$                    
+//  | $$  \ $$  /$$$$$$   /$$$$$$$  /$$$$$$   /$$$$$$ 
+//  | $$$$$$$  |____  $$ /$$__  $$ /$$__  $$ /$$__  $$
+//  | $$__  $$  /$$$$$$$| $$  | $$| $$  \ $$| $$$$$$$$
+//  | $$  \ $$ /$$__  $$| $$  | $$| $$  | $$| $$_____/
+//  | $$$$$$$/|  $$$$$$$|  $$$$$$$|  $$$$$$$|  $$$$$$$
+//  |_______/  \_______/ \_______/ \____  $$ \_______/
+//                                 /$$  \ $$          
+//                                |  $$$$$$/          
+//                                 \______/           
+#openbadges {
+
+	h1 {
+		font-family: "Open Sans", Helvetica, Arial, sans-serif;
+	  font-size: 32px;
+	  line-height: 30px;
+	  font-weight: 700;
+	  color: #606060;
+	  letter-spacing: 7px;
+	  text-transform: uppercase;
+	}
+
+	h3 {
+		font-family: "Roboto", Helvetica, Arial, sans-serif;
+	  font-size: 23px;
+	  line-height: 28px;
+	  font-weight: 400;
+	  color: #3d3d3d;
+	  font-style: normal;
+	  letter-spacing: 3px;
+	  text-transform: uppercase;
+	}
+
+	.openbadge-image {
+		width: 200px;
+	}
+}

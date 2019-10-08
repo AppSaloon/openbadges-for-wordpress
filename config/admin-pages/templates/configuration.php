@@ -39,6 +39,7 @@
 								echo 'Renew certificate';
 							}?>
 							<span class="loader">Loading...</span>
+							</button>
 							<p id="refresh_request_status"><strong></strong></p>
 						</td>
 					</tr>

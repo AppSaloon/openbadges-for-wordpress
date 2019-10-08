@@ -39,20 +39,31 @@
 **/
 
 ?>
+<div id="openbadges">
 <?php if( $is_user_allowed_to_claim_badge ): ?>
-	<div>
-		<h1><?php _ex( 'Congratulations!', 'obwp' );?></h1>
-		<h1><?php _ex( 'You earned a badge', 'obwp' );?></h1>
-		<img src="<?php echo $badge['image'];?>" />
-		<h2><?php echo $badge['name'];?></h2>
-		<p><?php echo __( 'Claim your badge and showcase your knowledge in your Open Badges Passport!', 'obwp' );?></p>
-		<?php $nonce = wp_create_nonce( 'open-badge-issue-' . $badge['id'] ) ?>
-		<button id="open-badge-to-claim-<?php echo $badge['id'] ?>" data-badge_id="<?php echo $badge['id'];?>" data-user_email="<?php echo $user_email;?>" data-nonce="<?php echo $nonce ?>">Mail me my badge</button>
+	
+		<h1 class="tbk__title"><?php _e( 'Congratulations!', 'obwp' ); ?></h1>
+		<h4 class="tbk__subtitle"><?php _e( 'You earned a badge', 'obwp' ); ?></h4>
+		<div class="row">
+			<div class="col-md-3 col-sm-3 text-center">
+				<img src="<?php echo $badge['image'];?>" class="openbadge-image">
+				<h3><?php echo $badge['name'];?></h3>
+				<p><?php echo __( 'Claim your badge and showcase your knowledge in your Open Badges Passport!', 'obwp' );?></p>
+				<?php $nonce = wp_create_nonce( 'open-badge-issue-' . $badge['id'] ) ?>
+				<button id="open_badge_to_claim" data-badge_id="<?php echo $badge['id'];?>" data-user_email="<?php echo $user_email;?>" data-nonce="<?php echo $nonce ?>" class="zn-button btn btn-fullcolor btn--rounded"><span class="zn-buttonText">Mail me my badge</span></button>
+			</div>
+		</div>
+	
+<?php else :?>
+
+	<div class="row">
+		<div class="col-md-3 col-sm-3 text-center">
+			<img src="<?php echo $badge['image'];?>" />
+			<h2><?php echo $badge['name'];?></h2>
+			<p><?php echo __( 'Log in to find out if you can claim this badge', 'obwp' );?></p>
+		</div>
 	</div>
-<?php else:?>
-<div>
-	<img src="<?php echo $badge['image'];?>" />
-	<h2><?php echo $badge['name'];?></h2>
-	<p><?php echo __( 'Log in to find out if you can claim this badge', 'obwp' );?></p>
-</div>
+
 <?php endif;?>
+
+</div>

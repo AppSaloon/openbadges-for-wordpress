@@ -39,7 +39,7 @@ gulp.task('frontendscripts', function() {
 //css task
 // gulp sass
 gulp.task('adminsass', function() {
-    gulp.src('assets/scss/admin-pages/**/*.scss')
+  return gulp.src('assets/scss/admin-pages/*.scss')
       .pipe(plumber({errorHandler: onError}))
       .pipe(sass())
       .pipe(minifycss({zindex: false}))
@@ -48,7 +48,7 @@ gulp.task('adminsass', function() {
       .pipe(gulp.dest('dist/css/'));
 });
 gulp.task('sass', function() {
-    gulp.src('assets/scss/frontend/**/*.scss')
+  return gulp.src('assets/scss/frontend/*.scss')
       .pipe(plumber({errorHandler: onError}))
       .pipe(sass())
       .pipe(minifycss({zindex: false}))
@@ -59,8 +59,8 @@ gulp.task('sass', function() {
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    gulp.watch( 'assets/scss/admin-pages/**/*.scss', gulp.series('adminsass'));
-    gulp.watch( 'assets/scss/frontend/**/*.scss', gulp.series('sass'));
+    gulp.watch( 'assets/scss/admin-pages/*.scss', gulp.series('adminsass'));
+    gulp.watch( 'assets/scss/frontend/*.scss', gulp.series('sass'));
     gulp.watch(jsconfig.adminscripts.src, gulp.series('adminscripts'));
     gulp.watch(jsconfig.frontendscripts.src, gulp.series('frontendscripts'));
 });
