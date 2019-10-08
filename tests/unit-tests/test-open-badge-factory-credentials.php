@@ -56,19 +56,32 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 
 		$this->root = vfsStream::setup( 'testDirectory', null, $structure );
 
-		$this->root->getChild( self::UNWRITEABLE_ROOT )->chmod( 0000 );
+		$this->set_filemock_permissions();
+	}
 
+	private function set_filemock_permissions() {
+		$this->set_unwriteable_root_permissions();
+		$this->set_populated_unwriteable_plugin_folder_permissions();
+		$this->set_test_folder_permissions();
+	}
+
+	private function set_unwriteable_root_permissions() {
+		$this->root->getChild( self::UNWRITEABLE_ROOT )->chmod( 0000 );
+	}
+
+	private function set_populated_unwriteable_plugin_folder_permissions() {
 		foreach (
 			$this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER)->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChildren() as $child ) {
 			$child->chmod( 0444 );
 			$child->chown( vfsStream::OWNER_USER_2);
 		}
+		$this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER)->chmod( 0000 );
+	}
 
+	private function set_test_folder_permissions() {
 		$test_folder_key_file =$this->root->getChild( self::TEST_FOLDER )->getChild( Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME )->getChild( Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME);
 		$test_folder_key_file->chmod( 0444 );
 		$test_folder_key_file->chown( vfsStream::OWNER_USER_2 );
-
-		$this->root->getChild( self::POPULATED_UNWRITEABLE_PLUGIN_FOLDER)->chmod( 0000 );
 	}
 
 	public function tearDown() : void {
@@ -352,8 +365,6 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$private_key_path =
 			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
 			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-
-		var_dump( $plugin_folder_object->getChild( $private_key_path )->getPermissions() );
 
 		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
 
