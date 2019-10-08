@@ -345,7 +345,6 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 	}
 
 	public function test_save_new_credentials_with_existing_credentials_and_failed_private_key_file_creation() {
-		var_dump( file_get_contents( __DIR__ . '/../../vendor/mikey179/vfsstream/CHANGELOG.md'  ) );
 		$this->mock_get_option_client_id_success( 1 );
 		$this->mock_get_option_client_id_success( 1, self::NEW_CLIENT_ID );
 
