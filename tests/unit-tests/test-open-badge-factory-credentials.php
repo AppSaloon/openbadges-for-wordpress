@@ -349,6 +349,12 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->mock_get_option_client_id_success( 1, self::NEW_CLIENT_ID );
 
 		$plugin_folder_object = $this->root->getChild( self::TEST_FOLDER );
+		$private_key_path =
+			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
+			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
+
+		var_dump( $plugin_folder_object->getChild( $private_key_path )->getPermissions() );
+
 		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
 
 		$this->mock_update_option_client_id_success( self::NEW_CLIENT_ID );
@@ -358,9 +364,7 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->assertFalse( $is_save_successful );
 
 		// test the private key file was untouched
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
+
 		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
 
 		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
