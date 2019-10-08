@@ -191,9 +191,7 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->mock_get_option_client_id_success( 1 );
 		$credentials = new Open_Badge_Factory_Credentials( $this->root->url() );
 
-		$expected_path = $this->root->url()
-			. DIRECTORY_SEPARATOR .	Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME
-			. DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
+		$expected_path = $this->root->url() . DIRECTORY_SEPARATOR . self::RELATIVE_PRIVATE_KEY_PATH;
 
 		$this->assertEquals( $expected_path, $credentials->get_private_key_path() );
 	}
@@ -202,163 +200,156 @@ class Test_Open_Badge_Factory_Credentials extends \WP_Mock\Tools\TestCase {
 		$this->mock_get_option_client_id_success( 1 );
 		$credentials = new Open_Badge_Factory_Credentials( $this->root->url() );
 
-		$expected_path = $this->root->url()
-			. DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME
-			. DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
+		$expected_path = $this->root->url() . DIRECTORY_SEPARATOR . self::RELATIVE_CERTIFICATE_FILE_PATH;
 
 		$this->assertEquals( $expected_path, $credentials->get_certificate_path() );
 	}
 
 	public function test_save_new_credentials_with_existing_credentials_success() {
+		// mock the wp functions called during test
 		$this->mock_get_option_client_id_success( "+2" );
-
-		$plugin_folder_object = $this->root->getChild( self::POPULATED_PLUGIN_FOLDER );
-
-		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
-
 		$this->mock_update_option_client_id_success( self::OLD_CLIENT_ID );
 		$this->mock_current_time();
 		$this->mock_update_option_credentials_created_at();
 
-		$is_save_successful = $credentials->save_new_credentials( self::OLD_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
+		// get folder to use for test
+		$plugin_folder_object = $this->root->getChild( self::POPULATED_PLUGIN_FOLDER );
 
+		// run code to test
+		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::OLD_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+		// start assertions
 		$this->assertTrue( $is_save_successful );
 		$this->assertEquals( self::OLD_CLIENT_ID, $credentials->get_client_id() );
 
 		// tests if the private key file was created with the correct contents
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_PRIVATE_KEY_PATH ) );
 
-		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
+		$private_key_file = $plugin_folder_object->getChild( self::RELATIVE_PRIVATE_KEY_PATH );
 		$this->assertEquals( self::NEW_PRIVATE_KEY, file_get_contents( $private_key_file->url() ) );
 
 		// tests if the certificate file was created with the correct contents
-		$certificate_file_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $certificate_file_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_CERTIFICATE_FILE_PATH ) );
 
-		$certificate_file = $plugin_folder_object->getChild( $certificate_file_path );
+		$certificate_file = $plugin_folder_object->getChild( self::RELATIVE_CERTIFICATE_FILE_PATH );
 		$this->assertEquals( self::NEW_CLIENT_CERTIFICATE, file_get_contents( $certificate_file->url() ) );
 	}
 
 	public function test_save_new_credentials_without_existing_client_id_but_credential_files_success() {
+		// mock the wp functions called during test
 		$this->mock_get_option_client_id_fail();
-
-		$plugin_folder_object = $this->root->getChild( self::POPULATED_PLUGIN_FOLDER );
-
-		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
-
 		$this->mock_update_option_client_id_success( self::NEW_CLIENT_ID );
 		$this->mock_get_option_client_id_success( 2, self::NEW_CLIENT_ID );
 		$this->mock_current_time();
 		$this->mock_update_option_credentials_created_at();
 
-		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
+		// get folder to use for test
+		$plugin_folder_object = $this->root->getChild( self::POPULATED_PLUGIN_FOLDER );
 
+		// run code to test
+		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+
+		// start assertions
 		$this->assertTrue( $is_save_successful );
 		$this->assertEquals( self::NEW_CLIENT_ID, $credentials->get_client_id() );
 
 		// tests if the private file was created with the correct contents
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_PRIVATE_KEY_PATH ) );
 
-		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
+		$private_key_file = $plugin_folder_object->getChild( self::RELATIVE_PRIVATE_KEY_PATH );
 		$this->assertEquals( self::NEW_PRIVATE_KEY, file_get_contents( $private_key_file->url() ) );
 
 		// tests if the certificate file was created with the correct contents
-		$certificate_file_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $certificate_file_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_CERTIFICATE_FILE_PATH ) );
 
-		$certificate_file = $plugin_folder_object->getChild( $certificate_file_path );
+		$certificate_file = $plugin_folder_object->getChild( self::RELATIVE_CERTIFICATE_FILE_PATH );
 		$this->assertEquals( self::NEW_CLIENT_CERTIFICATE, file_get_contents( $certificate_file->url() ) );
 	}
 
 	public function test_save_new_credentials_without_any_credentials_success() {
+		// mock the wp functions called during test
 		$this->mock_get_option_client_id_fail();
-
-		$plugin_folder_object = $this->root;
-		//$plugin_folder_object = $this->root->getChild( self::EMPTY_FOLDER );
-
-		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
-
 		$this->mock_update_option_client_id_success( self::NEW_CLIENT_ID );
 		$this->mock_get_option_client_id_success( 2, self::NEW_CLIENT_ID );
 		$this->mock_current_time();
 		$this->mock_update_option_credentials_created_at();
 
-		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
+		// get folder to use for test
+		$plugin_folder_object = $this->root;
 
+		// run code to test
+		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+		// start assertions
 		$this->assertTrue( $is_save_successful );
 		$this->assertEquals( self::NEW_CLIENT_ID, $credentials->get_client_id() );
 
 		// tests if the private file was created with the correct contents
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_PRIVATE_KEY_PATH ) );
 
-		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
+		$private_key_file = $plugin_folder_object->getChild( self::RELATIVE_PRIVATE_KEY_PATH );
 		$this->assertEquals( self::NEW_PRIVATE_KEY, file_get_contents( $private_key_file->url() ) );
 
 		// tests if the certificate file was created with the correct contents
-		$certificate_file_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $certificate_file_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_CERTIFICATE_FILE_PATH ) );
 
-		$certificate_file = $plugin_folder_object->getChild( $certificate_file_path );
+		$certificate_file = $plugin_folder_object->getChild( self::RELATIVE_CERTIFICATE_FILE_PATH );
 		$this->assertEquals( self::NEW_CLIENT_CERTIFICATE, file_get_contents( $certificate_file->url() ) );
 	}
 
 	public function test_save_new_credentials_with_existing_credentials_and_failed_client_id_update() {
+		// mock the wp functions called during test
 		$this->mock_get_option_client_id_success( "+2" );
-
-		$plugin_folder_object = $this->root->getChild( self::POPULATED_PLUGIN_FOLDER );
-
-		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
-
 		$this->mock_update_option_client_id_fail( self::NEW_CLIENT_ID );
 
-		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
+		// get folder to use for test
+		$plugin_folder_object = $this->root->getChild( self::POPULATED_PLUGIN_FOLDER );
 
+		// run code to test
+		$credentials = new Open_Badge_Factory_Credentials( $plugin_folder_object->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+		// start assertions
 		$this->assertFalse( $is_save_successful );
 		$this->assertEquals( self::OLD_CLIENT_ID, $credentials->get_client_id() );
 
 		// tests if the old private key file was untouched
-		$private_key_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::PRIVATE_KEY_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $private_key_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_PRIVATE_KEY_PATH ) );
 
-		$private_key_file = $plugin_folder_object->getChild( $private_key_path );
+		$private_key_file = $plugin_folder_object->getChild( self::RELATIVE_PRIVATE_KEY_PATH );
 		$this->assertEquals( self::OLD_PRIVATE_KEY, file_get_contents( $private_key_file->url() ) );
 
 		// tests if the old certificate file was untouched
-		$certificate_file_path =
-			Open_Badge_Factory_Credentials::CREDENTIALS_FOLDER_NAME .
-			DIRECTORY_SEPARATOR . Open_Badge_Factory_Credentials::CLIENT_CERTIFICATE_FILE_NAME;
-		$this->assertTrue( $plugin_folder_object->hasChild( $certificate_file_path ) );
+		$this->assertTrue( $plugin_folder_object->hasChild( self::RELATIVE_CERTIFICATE_FILE_PATH ) );
 
-		$certificate_file = $plugin_folder_object->getChild( $certificate_file_path );
+		$certificate_file = $plugin_folder_object->getChild( self::RELATIVE_CERTIFICATE_FILE_PATH );
 		$this->assertEquals( self::OLD_CLIENT_CERTIFICATE, file_get_contents( $certificate_file->url() ) );
 	}
 
 	public function test_save_new_credentials_with_existing_client_id_no_credential_files_and_failed_client_id_update() {
+		// mock the wp functions called during test
 		$this->mock_get_option_client_id_success( "+2" );
-
-		$credentials = new Open_Badge_Factory_Credentials( $this->root->url() );
-
 		$this->mock_update_option_client_id_fail( self::NEW_CLIENT_ID );
 
-		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID, self::NEW_PRIVATE_KEY, self::NEW_CLIENT_CERTIFICATE );
-
+		// run code to test
+		$credentials = new Open_Badge_Factory_Credentials( $this->root->url() );
+		$is_save_successful = $credentials->save_new_credentials( self::NEW_CLIENT_ID,
+																  self::NEW_PRIVATE_KEY,
+																  self::NEW_CLIENT_CERTIFICATE
+																);
+		// start assertions
 		$this->assertFalse( $is_save_successful );
 		$this->assertEquals( self::OLD_CLIENT_ID, $credentials->get_client_id() );
 
