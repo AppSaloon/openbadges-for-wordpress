@@ -1,7 +1,7 @@
 /*
 ID to use in shortcode for testing: OO7E1GaAYGa9T (Railway Ambassador Badge)
 shortcode example:
-[obf_display_claimable_badge badge_id="OO7E1GaAYGa9T"]
+[obf_display_claimable_badge id="OO7E1GaAYGa9T"]
 
 
 
