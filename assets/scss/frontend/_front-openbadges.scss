@@ -11,25 +11,87 @@
 //                                 \______/           
 #openbadges {
 
+	* {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+
+	.col-md-3 {
+		width: 25%;
+		float: left;
+		position: relative;
+		min-height: 1px;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+
+	.btn.btn-fullcolor {
+		font-family: sans-serif;
+		text-shadow: none;
+		padding: 10px 20px;
+		line-height: 1.6;
+		box-shadow: none;
+		font-size: 13px;
+		font-weight: 700;
+		border-style: solid;
+		border-radius: 3px;
+		transition: background-color .15s ease-out;
+		border-width: 0;
+		display: inline-block;
+		margin-bottom: 15px;
+		text-align: center;
+		vertical-align: middle;
+		-ms-touch-action: manipulation;
+		touch-action: manipulation;
+		cursor: pointer;
+		background-image: none;
+		white-space: nowrap;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-appearance: button;
+		text-transform: none;
+
+		&[disabled] {
+			cursor: not-allowed;
+			opacity: .65;
+			filter: alpha(opacity=65);
+			-webkit-box-shadow: none;
+			box-shadow: none;
+		}
+	}
+
+	.text-center {
+		text-align: center;
+	}
+
 	h1 {
 		font-family: "Open Sans", Helvetica, Arial, sans-serif;
-	  font-size: 32px;
-	  line-height: 30px;
-	  font-weight: 700;
-	  color: #606060;
-	  letter-spacing: 7px;
-	  text-transform: uppercase;
+		font-size: 32px;
+		line-height: 30px;
+		font-weight: 700;
+		color: #606060;
+		letter-spacing: 7px;
+		text-transform: uppercase;
 	}
 
 	h3 {
 		font-family: "Roboto", Helvetica, Arial, sans-serif;
-	  font-size: 23px;
-	  line-height: 28px;
-	  font-weight: 400;
-	  color: #3d3d3d;
-	  font-style: normal;
-	  letter-spacing: 3px;
-	  text-transform: uppercase;
+		font-size: 23px;
+		line-height: 28px;
+		font-weight: 400;
+		color: #3d3d3d;
+		font-style: normal;
+		letter-spacing: 3px;
+		text-transform: uppercase;
+	}
+
+	p.success {
+		color: #008000;
+		font-size: 16px;
+		font-weight: 600;
 	}
 
 	.openbadge-image {

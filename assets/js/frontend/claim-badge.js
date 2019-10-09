@@ -33,24 +33,19 @@ jQuery(document).ready(function( $ ) {
 			email_link_text: 'email link text that obf will ignore anyway'
 		}
 
-		console.log(openbadges_ajax_object.ajaxurl)
-
-		// $.post( openbadges_ajax_object, data )
-		// 	.done(function( response ) {
-		// 		console.log( response )
-		// 	})
-		// 	.fail(function(xhr, status, error) {
-		// 		console.log(status, error)
-		// 	})
-
 		$.ajax({
 			type: "post",
 			dataType: "json",
 			url: openbadges_ajax_object.ajaxurl,
 			action: "obf_issue_badge",
 			data: data,
-			success: function(msg){
-				console.log(jqXHR);
+			success: function( msg ) {
+				if ( msg.success == true ) {
+					$('#open_badge_to_claim').prop('disabled', true).after('<p class="success">'+msg.data+'</p>')
+				}
+			},
+			fail: function( jqXHR, textStatus, errorThrown ) {
+				console.log( textStatus, errorThrown)
 			}
 		})
 

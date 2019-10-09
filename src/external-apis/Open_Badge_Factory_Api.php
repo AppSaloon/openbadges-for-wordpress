@@ -272,7 +272,7 @@ class Open_Badge_Factory_Api {
 			$result = $this->make_api_request( static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() .
 				DIRECTORY_SEPARATOR . $_POST['badge_id'], $obf_request_body->get_request_body() );
 			if( $result['http_code'] == 201 ) {
-				wp_send_json_success( 'badge was issued', 200);
+				wp_send_json_success( 'This badge is successfully claimed. Please check your mail for confirmation', 200);
 			} else {
 				wp_send_json_error( 'badge was not issued' );
 			}
