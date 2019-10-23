@@ -53,7 +53,7 @@ class Admin_Menu {
      * Renders the main plugin page for wp-admin by use of template
      */
     public function display_main_admin_page() {
-        include_once __DIR__ . '/../config/admin-pages/templates/admin_main_Menu.php';
+        include_once __DIR__ . '/../templates/admin-pages/admin_main_menu.php';
     }
 
     public function admin_enqueue_scripts_and_styles( $hook ) {
