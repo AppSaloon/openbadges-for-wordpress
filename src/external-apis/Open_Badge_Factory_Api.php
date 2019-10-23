@@ -64,10 +64,10 @@ class Open_Badge_Factory_Api {
 		wp_enqueue_script('openbadges-js', $this->plugin_url .'files/js/openbadges.js', 'jquery' , '' , true );
 		wp_localize_script('openbadges-js', 'openbadges_ajax_object', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 
-    if( $badge = $this->get_badge_by_id( $atts['id'] ) ) {
+    	if( $badge = $this->get_badge_by_id( $atts['id'] ) ) {
 			return $this->load_claimable_badge_template( $is_user_allowed_to_claim_badge, $user_email, $badge );
 		} else {
-    	return 'invalid badge_id in shortcode';
+    		return 'invalid badge_id in shortcode';
 		}
 	}
 
