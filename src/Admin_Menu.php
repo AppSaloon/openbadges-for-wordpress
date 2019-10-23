@@ -2,24 +2,61 @@
 
 namespace appsaloon\obwp\settings;
 
+/**
+ * Class Admin_Menu
+ *
+ * Adds an menu to the backend based on a json config file
+ * @package appsaloon\obwp\settings
+ */
 class Admin_Menu {
 
-    protected $config;
-    protected $main_menu_hook;
-    protected $submenu_hooks = array();
-    protected $plugin_url;
+	/**
+	 * Set through the constructor by file path, it contains the information from the config file
+	 *
+	 * @var object
+	 */
+	private $config;
+
+	/**
+	 *
+	 * @var
+	 */
+	private $main_menu_hook;
+
+	/**
+	 * Array of all hooks of the submenus
+	 *
+	 * @var array
+	 */
+	private $submenu_hooks = array();
+
+	/**
+	 * The url to the plugin directory
+	 *
+	 * @var
+	 */
+	private $plugin_url;
 
     /**
-     * Settings constructor.
+     * Constructor.
+	 *
+	 * @param string $plugin_url
+	 * @param string $config_file_path
      */
-    public function __construct( $plugin_url ) {
-        $this->plugin_url = $plugin_url;
-        $config_string = file_get_contents( __DIR__ . '/../config/admin_menu.json' );
+    public function __construct( $plugin_url, $config_file_path ) {
+    	$this->plugin_url = $plugin_url;
+        $config_string = file_get_contents( $config_file_path );
         $this->config = json_decode( $config_string  );
-
-        add_action( 'admin_menu', array( $this, 'add_settings_interface' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts_and_styles' ) );
     }
+
+	/**
+	 * Adds all the actions and filters for the Admin Menu
+	 *
+	 */
+	public function register_hooks() {
+		add_action( 'admin_menu', array( $this, 'add_settings_interface' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts_and_styles' ) );
+	}
 
     /**
      * Adds plugin pages to wp-admin menu
@@ -46,7 +83,6 @@ class Admin_Menu {
             );
             $this->submenu_hooks[$submenu_hook] = $identifier;
         }
-
     }
 
     /**
@@ -56,13 +92,16 @@ class Admin_Menu {
         include_once __DIR__ . '/../templates/admin-pages/admin_main_menu.php';
     }
 
-    public function admin_enqueue_scripts_and_styles( $hook ) {
+	/**
+	 * @param $hook
+	 */
+	public function admin_enqueue_scripts_and_styles( $hook ) {
         $script_handle = $hook . strtolower( static::class ) . '_js';
         $ajax_nonce = wp_create_nonce($this->submenu_hooks[$hook] );
         
-        wp_register_style( 'openbadges_css', $this->plugin_url.'dist/css/admin-openbadges.css');
+        wp_register_style( 'openbadges_css', $this->plugin_url .'dist/css/admin-openbadges.css');
         wp_enqueue_style( 'openbadges_css');
-        wp_enqueue_script('openbadges_js', $this->plugin_url.'dist/js/admin_openbadges.js', 'jquery' , 1 , true );
+        wp_enqueue_script('openbadges_js', $this->plugin_url .'dist/js/admin_openbadges.js', 'jquery' , 1 , true );
 
         wp_localize_script(
             'openbadges_js',

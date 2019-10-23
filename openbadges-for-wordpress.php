@@ -16,7 +16,8 @@ use appsaloon\obwp\settings\Admin_Menu;
 use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Credentials;
 use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Api;
 
-new Admin_Menu( plugin_dir_url( __FILE__) );
+$admin_menu = new Admin_Menu( plugin_dir_url( __FILE__ ), __DIR__ . '/config/admin_menu.json' );
+$admin_menu->register_hooks();
 
-$obf_credentials = new Open_Badge_Factory_Credentials( __DIR__  );
+$obf_credentials = new Open_Badge_Factory_Credentials( __DIR__ );
 new Open_Badge_Factory_Api( $obf_credentials, plugin_dir_url( __FILE__) ) ;
