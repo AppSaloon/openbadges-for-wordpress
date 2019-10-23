@@ -40,7 +40,7 @@ class Test_Admin_Menu extends \WP_Mock\Tools\TestCase {
 				'times' => 1,
 				'args' => array(
 					'openbadges_css',
-					'obwp_plugin_url_mocked/dist/css/admin-openbadges.css'
+					'obwp_plugin_url_mocked/files/css/admin-openbadges.css'
 				)
 			)
 		);
@@ -57,7 +57,7 @@ class Test_Admin_Menu extends \WP_Mock\Tools\TestCase {
 				'times' => 1,
 				'args' => array(
 					'openbadges_js',
-					'obwp_plugin_url_mocked/dist/js/admin_openbadges.js',
+					'obwp_plugin_url_mocked/files/js/admin_openbadges.js',
 					'jquery',
 					1,
 					true
