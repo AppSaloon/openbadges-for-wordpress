@@ -33,7 +33,7 @@ class Open_Badge_Factory_Api {
 			array( $this, 'refresh_obf_api_credentials' ) );
 
 		add_action( 'wp_ajax_' . static::TEST_OBF_API_CONNECTION_ACTION,
-			array( $this, 'test_connection' )
+			array( $this, 'ajax_test_connection' )
 		);
 
 
@@ -219,7 +219,7 @@ class Open_Badge_Factory_Api {
         }
     }
 
-    public function test_connection() {
+    public function ajax_test_connection() {
 		if( current_user_can( 'manage_options' ) ) {
 			$result =
 				$this->make_api_request( static::OBF_TEST_CONNECTION_URL . $this->credentials->get_client_id() );
