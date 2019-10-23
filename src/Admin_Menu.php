@@ -120,9 +120,9 @@ class Admin_Menu {
 	public function admin_enqueue_scripts_and_styles( $hook ) {
         $ajax_nonce = wp_create_nonce( $this->config_menu_hook );
         
-        wp_register_style( 'openbadges_css', OBWP_PLUGIN_URL .'dist/css/admin-openbadges.css' );
+        wp_register_style( 'openbadges_css', OBWP_PLUGIN_URL .'files/css/admin-openbadges.css' );
         wp_enqueue_style( 'openbadges_css');
-        wp_enqueue_script('openbadges_js', OBWP_PLUGIN_URL .'dist/js/admin_openbadges.js', 'jquery' , 1 , true );
+        wp_enqueue_script('openbadges_js', OBWP_PLUGIN_URL .'files/js/admin_openbadges.js', 'jquery' , 1 , true );
 
         wp_localize_script(
             'openbadges_js',

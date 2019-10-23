@@ -3,7 +3,7 @@
 Plugin Name: OpenBadges for WordPress
 Plugin URI: https://github.com/AppSaloon/openbadges-for-wordpress
 Description: OpenBadges for WordPress
-Version: 1.0.2
+Version: 1.0.5
 Author: AppSaloon (Koen Gabriels & Mark Creeten)
 Author URI: https://www.appsaloon.be/
 */

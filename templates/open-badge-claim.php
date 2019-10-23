@@ -45,7 +45,7 @@
 		<h1 class="tbk__title"><?php _e( 'Congratulations!', 'obwp' ); ?></h1>
 		<h4 class="tbk__subtitle"><?php _e( 'You earned a badge', 'obwp' ); ?></h4>
 		<div class="row">
-			<div class="col-md-3 col-sm-3 text-center">
+			<div class="col-md-3 text-center">
 				<img src="<?php echo $badge['image'];?>" class="openbadge-image">
 				<h3><?php echo $badge['name'];?></h3>
 				<p><?php echo __( 'Claim your badge and showcase your knowledge in your Open Badges Passport!', 'obwp' );?></p>

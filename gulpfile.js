@@ -24,7 +24,7 @@ gulp.task('adminscripts', function() {
     .pipe(plumber({errorHandler: onError}))
     .pipe(concat('admin_openbadges.js'))
     .pipe(uglify())
-    .pipe(gulp.dest('dist/js/'))
+    .pipe(gulp.dest('files/js/'))
     .pipe(size());
 });
 gulp.task('frontendscripts', function() {
@@ -32,7 +32,7 @@ gulp.task('frontendscripts', function() {
     .pipe(plumber({errorHandler: onError}))
     .pipe(concat('openbadges.js'))
     .pipe(uglify())
-    .pipe(gulp.dest('dist/js/'))
+    .pipe(gulp.dest('files/js/'))
     .pipe(size());
 });
 
@@ -45,7 +45,7 @@ gulp.task('adminsass', function() {
       .pipe(minifycss({zindex: false}))
       .pipe(rename('admin-openbadges.css'))
       .pipe(size())
-      .pipe(gulp.dest('dist/css/'));
+      .pipe(gulp.dest('files/css/'));
 });
 gulp.task('sass', function() {
   return gulp.src('assets/scss/frontend/*.scss')
@@ -54,7 +54,7 @@ gulp.task('sass', function() {
       .pipe(minifycss({zindex: false}))
       .pipe(rename('openbadges.css'))
       .pipe(size())
-      .pipe(gulp.dest('dist/css/'));
+      .pipe(gulp.dest('files/css/'));
 });
 
 // Watch Files For Changes
