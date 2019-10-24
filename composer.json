@@ -1,6 +1,8 @@
 {
     "require-dev": {
         "10up/wp_mock": "0.4.2",
-        "mikey179/vfsstream": ">=1.0.0"
+        "mikey179/vfsstream": ">=1.0.0",
+        "jms/serializer": "1.7.*",
+        "phpdocumentor/phpdocumentor": "^2.9"
     }
 }
