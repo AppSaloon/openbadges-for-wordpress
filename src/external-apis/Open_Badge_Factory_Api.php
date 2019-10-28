@@ -97,7 +97,7 @@ class Open_Badge_Factory_Api {
 	 * @since 1.0.5
 	 */
 	public function __construct( Open_Badge_Factory_Credentials $credentials_object, $plugin_url ) {
-    $this->plugin_url = $plugin_url;
+    	$this->plugin_url = $plugin_url;
 		$this->credentials = $credentials_object;
 		$this->add_actions_for_ajax_calls();
 		$this->add_shortcodes();
