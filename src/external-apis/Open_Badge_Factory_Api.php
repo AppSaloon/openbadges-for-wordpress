@@ -90,15 +90,31 @@ class Open_Badge_Factory_Api {
 	protected $plugin_url;
 
 	/**
+	 * Instance of Issue_Open_Badge_Request_Body to validate and prepare a request body to issue a badge
+	 * @var Issue_Open_Badge_Request_Body
+	 */
+	protected $issue_open_badge_request_body;
+
+	/**
 	 * Open_Badge_Factory_Api constructor.
 	 * @param Open_Badge_Factory_Credentials $credentials_object
 	 * @param string $plugin_url
 	 *
 	 * @since 1.0.5
 	 */
-	public function __construct( Open_Badge_Factory_Credentials $credentials_object, $plugin_url ) {
+	public function __construct( Open_Badge_Factory_Credentials $credentials_object, $plugin_url, Issue_Open_Badge_Request_Body $issue_open_badge_request_body ) {
     	$this->plugin_url = $plugin_url;
 		$this->credentials = $credentials_object;
+		$this->issue_open_badge_request_body = $issue_open_badge_request_body;
+
+	}
+
+	/**
+	 * Registers all the WP hooks
+	 *
+	 * @since 1.0.6
+	 */
+	public function register_hooks() {
 		$this->add_actions_for_ajax_calls();
 		$this->add_shortcodes();
 	}
@@ -441,15 +457,15 @@ class Open_Badge_Factory_Api {
 		}
 
 		$badge_data = $this->get_badge_by_id( $_POST['badge_id'] );
-		$obf_request_body = new Issue_Open_Badge_Request_Body(
+		$this->issue_open_badge_request_body->initialize(
 								$this->credentials->get_client_id(),
 								$badge_data,
 								$_POST
 							);
 
-		if( $obf_request_body->is_valid_incoming_request_body() ) {
+		if( $this->issue_open_badge_request_body->is_valid_incoming_request_body() ) {
 			$result = $this->make_api_request( static::OBF_BADGE_OPERATION_URL . $this->credentials->get_client_id() .
-				DIRECTORY_SEPARATOR . $_POST['badge_id'], $obf_request_body->get_request_body() );
+				DIRECTORY_SEPARATOR . $_POST['badge_id'], $this->issue_open_badge_request_body->get_request_body() );
 			if( $result['http_code'] == 201 ) {
 				wp_send_json_success( 'This badge is successfully claimed. Please check your mail for confirmation', 200);
 			} else {

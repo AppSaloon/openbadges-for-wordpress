@@ -3,7 +3,7 @@
 Plugin Name: OpenBadges for WordPress
 Plugin URI: https://github.com/AppSaloon/openbadges-for-wordpress
 Description: OpenBadges for WordPress
-Version: 1.0.5
+Version: 1.0.6
 Author: AppSaloon (Koen Gabriels & Mark Creeten)
 Author URI: https://www.appsaloon.be/
 */
@@ -15,10 +15,12 @@ require_once __DIR__ . '/src/Admin_Menu.php';
 use appsaloon\obwp\settings\Admin_Menu;
 use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Credentials;
 use appsaloon\obwp\external_apis\openbadgefactory\Open_Badge_Factory_Api;
+use appsaloon\obwp\external_apis\openbadgefactory\Issue_Open_Badge_Request_Body;
 
 if( ! defined( 'OBWP_PLUGIN_URL' ) ) define( 'OBWP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 ( new Admin_Menu() )->register_hooks();
 
 $obf_credentials = new Open_Badge_Factory_Credentials( __DIR__ );
-new Open_Badge_Factory_Api( $obf_credentials, plugin_dir_url( __FILE__) ) ;
+$obf_api = new Open_Badge_Factory_Api( $obf_credentials, plugin_dir_url( __FILE__), new Issue_Open_Badge_Request_Body() ) ;
+$obf_api->register_hooks();

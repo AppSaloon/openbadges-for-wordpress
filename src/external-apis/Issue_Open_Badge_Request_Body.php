@@ -50,15 +50,15 @@ class Issue_Open_Badge_Request_Body {
 	private $request_body;
 
 	/**
-	 * Issue_Open_Badge_Request_Body constructor.
+	 * Initializes the instance with the given data
 	 *
 	 * @param string $client_id
 	 * @param array $badge_data
 	 * @param array $data
 	 *
-	 * @since 1.0.5
+	 * @since 1.0.6
 	 */
-	public function __construct($client_id, $badge_data, $data ) {
+	public function initialize( $client_id, $badge_data, $data ) {
 		$this->client_id = $client_id;
 		$this->badge_data = $badge_data;
 		$this->incoming_request_body = $data;
